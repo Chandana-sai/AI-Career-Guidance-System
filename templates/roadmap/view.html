@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Roadmap | {{ target_career.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Personalized Learning Roadmap</h2>
+      <p class="text-muted mb-0">Multi-stage curriculum tailored to transition your skills towards <strong>{{ target_career.title }}</strong>.</p>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">
+      <form method="GET" class="d-flex align-items-center gap-2">
+        <label class="form-label mb-0 fw-semibold small text-nowrap">Career Track:</label>
+        <select name="career_id" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+          {% for c in all_careers %}
+          <option value="{{ c.id }}" {% if target_career.id == c.id %}selected{% endif %}>{{ c.title }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <!-- Progress Overview Card -->
+  <div class="dashboard-card p-4 mb-4">
+    <div class="row align-items-center g-3">
+      <div class="col-md-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="bg-primary text-white p-3 rounded-circle fs-3 shadow-sm">
+            <i class="bi bi-bezier2"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold mb-0">{{ roadmap_data.template.title }}</h4>
+            <small class="text-muted">Estimated Duration: {{ roadmap_data.template.estimated_months }} Months</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="d-flex justify-content-between small fw-semibold mb-1">
+          <span>Roadmap Completion Progress</span>
+          <span class="text-primary">{{ roadmap_data.completion_percentage }}%</span>
+        </div>
+        <div class="progress" style="height: 10px;">
+          <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: {{ roadmap_data.completion_percentage }}%;"></div>
+        </div>
+      </div>
+      <div class="col-md-3 text-md-end">
+        <span class="badge bg-success fs-6 py-2 px-3 rounded-pill">
+          <i class="bi bi-check-all me-1"></i> {{ roadmap_data.completed_stages }} / {{ roadmap_data.total_stages }} Stages Done
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline Stages -->
+  <div class="dashboard-card p-4 p-md-5">
+    <div class="timeline-wrapper">
+      {% for item in roadmap_data.stages %}
+      <div class="timeline-step">
+        <div class="timeline-bullet {% if item.status == 'Completed' %}completed{% endif %}">
+          {% if item.status == 'Completed' %}<i class="bi bi-check"></i>{% else %}{{ item.stage.stage_number }}{% endif %}
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+          <div>
+            <span class="badge {% if item.status == 'Completed' %}bg-success{% elif item.status == 'In Progress' %}bg-warning text-dark{% else %}bg-secondary bg-opacity-25 text-secondary{% endif %} mb-1">
+              {{ item.status }}
+            </span>
+            <h5 class="fw-bold mb-1">{{ item.stage.title }}</h5>
+            <small class="text-muted"><i class="bi bi-clock me-1"></i> Duration: ~{{ item.stage.estimated_weeks }} Weeks</small>
+          </div>
+
+          <!-- Status update form -->
+          <form method="POST" action="{% url 'roadmap:toggle_stage' item.stage.id %}" class="d-flex gap-2">
+            {% csrf_token %}
+            <select name="status" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+              <option value="Not Started" {% if item.status == 'Not Started' %}selected{% endif %}>Not Started</option>
+              <option value="In Progress" {% if item.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+              <option value="Completed" {% if item.status == 'Completed' %}selected{% endif %}>Completed</option>
+            </select>
+          </form>
+        </div>
+
+        <p class="text-muted small mb-3">{{ item.stage.description }}</p>
+
+        {% if item.skills %}
+        <div class="mb-3">
+          <label class="fw-semibold small text-muted text-uppercase mb-1 d-block">Skills Covered in this Stage:</label>
+          <div class="d-flex flex-wrap gap-1">
+            {% for sk in item.skills %}
+            <span class="badge bg-light text-dark border"><i class="bi bi-tag-fill text-primary me-1"></i>{{ sk }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if item.stage.learning_outcomes %}
+        <div class="p-3 bg-light rounded-3 small">
+          <strong class="text-primary"><i class="bi bi-trophy me-1"></i> Deliverables & Practical Outcomes: </strong>
+          {{ item.stage.learning_outcomes }}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

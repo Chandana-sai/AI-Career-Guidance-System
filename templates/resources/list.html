@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Courses & Learning Resources | AI Career Guidance{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Curated Learning Resources</h2>
+      <p class="text-muted mb-0">High-rated courses, books, certifications, and documentation matched to your skill gaps.</p>
+    </div>
+  </div>
+
+  <!-- Search and Filter Bar -->
+  <div class="dashboard-card p-3 mb-4">
+    <form method="GET" class="row g-2 align-items-center">
+      <div class="col-md-4">
+        <div class="input-group">
+          <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Search by title..." value="{{ search_query }}">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <select name="skill" class="form-select">
+          <option value="">-- Filter by Skill --</option>
+          {% for sk in skills %}
+          <option value="{{ sk.name }}" {% if selected_skill == sk.name %}selected{% endif %}>{{ sk.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select name="level" class="form-select">
+          <option value="">-- Filter by Level --</option>
+          {% for key, val in levels %}
+          <option value="{{ key }}" {% if selected_level == key %}selected{% endif %}>{{ val }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-primary rounded-pill fw-semibold">Apply Filters</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Recommended Highlight Section -->
+  {% if recommended %}
+  <div class="mb-5">
+    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-star-fill text-warning me-2"></i> Recommended for Your Skill Gaps</h5>
+    <div class="row g-3">
+      {% for res in recommended %}
+      <div class="col-md-6 col-lg-4">
+        <div class="dashboard-card p-4 h-100 d-flex flex-column justify-content-between border-top border-4 border-primary">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-primary bg-opacity-10 text-primary">{{ res.skill.name }}</span>
+              <span class="badge bg-light text-dark border">{{ res.level }}</span>
+            </div>
+            <h6 class="fw-bold mb-2">{{ res.title }}</h6>
+            <p class="text-muted small mb-3">{{ res.description|truncatewords:18 }}</p>
+            <div class="d-flex justify-content-between text-muted small mb-3">
+              <span><i class="bi bi-display me-1"></i> {{ res.platform }}</span>
+              <span><i class="bi bi-clock me-1"></i> {{ res.duration }}</span>
+            </div>
+          </div>
+          <a href="{{ res.resource_url }}" target="_blank" class="btn btn-outline-primary rounded-pill w-100 fw-semibold">
+            View Course <i class="bi bi-box-arrow-up-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Complete Catalog -->
+  <h5 class="fw-bold mb-3">All Learning Resources ({{ resources.count }})</h5>
+  <div class="row g-3">
+    {% for res in resources %}
+    <div class="col-md-6 col-lg-4">
+      <div class="dashboard-card p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ res.skill.name }}</span>
+            <span class="badge bg-light text-dark border">{{ res.category }}</span>
+          </div>
+          <h6 class="fw-bold mb-2">{{ res.title }}</h6>
+          <p class="text-muted small mb-3">{{ res.description }}</p>
+          <div class="d-flex justify-content-between text-muted small mb-3">
+            <span><i class="bi bi-globe me-1"></i> {{ res.platform }}</span>
+            <span><i class="bi bi-star-fill text-warning me-1"></i> {{ res.rating }}</span>
+          </div>
+        </div>
+        <a href="{{ res.resource_url }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill w-100">
+          Access Material &rarr;
+        </a>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No resources match your filter criteria.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

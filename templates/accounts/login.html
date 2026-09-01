@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Student Login | AI Career Guidance{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="dashboard-card p-4 p-md-5 border-0 shadow-lg rounded-4">
+        <div class="text-center mb-4">
+          <div class="bg-primary text-white d-inline-flex p-3 rounded-circle fs-3 mb-2 shadow-sm">
+            <i class="bi bi-box-arrow-in-right"></i>
+          </div>
+          <h3 class="fw-bold">Welcome Back</h3>
+          <p class="text-muted small">Sign in to access your dashboard, assessments, and roadmaps.</p>
+        </div>
+
+        <form method="POST" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+              <input type="text" name="username" class="form-control" placeholder="Enter your username" required autofocus>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+              <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+          </div>
+
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow">
+              Sign In <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+
+          <div class="text-center">
+            <span class="text-muted small">Don't have an account? </span>
+            <a href="{% url 'register' %}" class="fw-semibold text-decoration-none">Register here</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

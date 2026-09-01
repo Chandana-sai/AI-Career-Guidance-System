@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Audit Scorecard | AI Career Guidance{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Resume ATS Audit Scorecard</h2>
+      <p class="text-muted mb-0">Analyzed for <strong>{{ target_career.title|default:"General Engineering" }}</strong> &bull; Uploaded {{ resume.uploaded_at|date:"M d, Y H:i" }}</p>
+    </div>
+    <a href="{% url 'resume_analyzer:upload' %}" class="btn btn-outline-primary rounded-pill">
+      <i class="bi bi-arrow-repeat me-1"></i> Upload Updated Version
+    </a>
+  </div>
+
+  <!-- Top Metrics Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-primary">
+        <span class="text-muted small fw-semibold">Completeness Score</span>
+        <h3 class="fw-bold text-primary mb-1">{{ resume.completeness_score }}<small class="fs-6 text-muted">/100</small></h3>
+        <div class="progress" style="height: 6px;">
+          <div class="progress-bar bg-primary" style="width: {{ resume.completeness_score }}%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-success">
+        <span class="text-muted small fw-semibold">Target Skill Match</span>
+        <h3 class="fw-bold text-success mb-1">{{ resume.match_percentage }}%</h3>
+        <div class="progress" style="height: 6px;">
+          <div class="progress-bar bg-success" style="width: {{ resume.match_percentage }}%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-info">
+        <span class="text-muted small fw-semibold">Skills Detected</span>
+        <h3 class="fw-bold text-info mb-1">{{ detected_skills|length }}</h3>
+        <small class="text-muted">Extracted technical keywords</small>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-warning">
+        <span class="text-muted small fw-semibold">Missing Keywords</span>
+        <h3 class="fw-bold text-warning mb-1">{{ missing_skills|length }}</h3>
+        <small class="text-muted">Target career essentials</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entities and Feedback Row -->
+  <div class="row g-4 mb-4">
+    <!-- Extracted Profile Entities -->
+    <div class="col-lg-5">
+      <div class="dashboard-card p-4 h-100">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-person-lines-fill text-primary me-2"></i> Extracted Contact & Academic Entities</h5>
+        <div class="list-group list-group-flush gap-2">
+          <div class="p-3 bg-light rounded-3">
+            <span class="text-muted small d-block">Detected Email:</span>
+            <span class="fw-bold">{{ resume.detected_email|default:"Not Detected (Add email to resume)" }}</span>
+          </div>
+          <div class="p-3 bg-light rounded-3">
+            <span class="text-muted small d-block">Detected Phone:</span>
+            <span class="fw-bold">{{ resume.detected_phone|default:"Not Detected (Add phone number)" }}</span>
+          </div>
+          <div class="p-3 bg-light rounded-3">
+            <span class="text-muted small d-block">Academic Keywords:</span>
+            <span class="fw-semibold">{{ resume.detected_education|default:"Engineering degree detected" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations & Suggestions -->
+    <div class="col-lg-7">
+      <div class="dashboard-card p-4 h-100">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i> ATS Optimization Recommendations</h5>
+        <div class="p-3 bg-light rounded-3 mb-3">
+          <p class="mb-0" style="white-space: pre-line;">{{ resume.feedback_notes }}</p>
+        </div>
+
+        <h6 class="fw-bold text-success mb-2"><i class="bi bi-check-circle-fill me-1"></i> Detected Skills in Resume:</h6>
+        <div class="d-flex flex-wrap gap-1 mb-3">
+          {% for sk in detected_skills %}
+          <span class="badge bg-success bg-opacity-10 text-success border border-success p-2 rounded-pill">{{ sk }}</span>
+          {% empty %}
+          <span class="text-muted small">No specific programming skills detected.</span>
+          {% endfor %}
+        </div>
+
+        {% if missing_skills %}
+        <h6 class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Missing Target Skills for {{ target_career.title }}:</h6>
+        <div class="d-flex flex-wrap gap-1">
+          {% for sk in missing_skills %}
+          <span class="badge bg-danger bg-opacity-10 text-danger border border-danger p-2 rounded-pill">{{ sk }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

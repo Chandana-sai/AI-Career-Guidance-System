@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ career.title }} | Career Profile{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="dashboard-card p-4 p-md-5 mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="bg-primary text-white p-4 rounded-4 fs-1 shadow-sm">
+          <i class="bi {{ career.icon_class|default:'bi-briefcase' }}"></i>
+        </div>
+        <div>
+          <span class="badge bg-primary bg-opacity-10 text-primary mb-1">{{ career.category }}</span>
+          <h2 class="fw-bold mb-1">{{ career.title }}</h2>
+          <p class="text-muted mb-0">{{ career.industry_growth }} &bull; {{ career.average_salary }}</p>
+        </div>
+      </div>
+      <div>
+        <a href="{% url 'recommendations:set_target' career.id %}" class="btn btn-primary btn-lg px-4 rounded-pill fw-bold shadow">
+          <i class="bi bi-check-circle me-1"></i> Choose as Target Career
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- Description & Responsibilities -->
+      <div class="dashboard-card p-4 mb-4">
+        <h5 class="fw-bold text-primary mb-3">Role Overview & Responsibilities</h5>
+        <p class="lead fs-6">{{ career.description }}</p>
+        {% if career.responsibilities %}
+        <h6 class="fw-bold mt-4 mb-2">Key Day-to-Day Responsibilities:</h6>
+        <p class="text-muted">{{ career.responsibilities }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Required Skill Benchmark Matrix -->
+      <div class="dashboard-card p-4 mb-4">
+        <h5 class="fw-bold text-primary mb-3">Industry Skill Benchmark Matrix</h5>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Skill Name</th>
+                <th>Category</th>
+                <th>Required Proficiency</th>
+                <th>Importance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cs in required_skills %}
+              <tr>
+                <td class="fw-bold">{{ cs.skill.name }}</td>
+                <td><span class="badge bg-light text-dark border">{{ cs.skill.get_category_display }}</span></td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="progress flex-grow-1" style="height: 6px;">
+                      <div class="progress-bar bg-primary" style="width: {{ cs.required_level }}0%;"></div>
+                    </div>
+                    <span class="fw-bold small">{{ cs.required_level }}/10</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge {% if cs.importance == 'Essential' %}bg-danger{% else %}bg-secondary{% endif %}">
+                    {{ cs.importance }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="dashboard-card p-4 mb-4">
+        <h5 class="fw-bold mb-3">Target Career Quick Links</h5>
+        <div class="d-grid gap-2">
+          <a href="{% url 'skill_gap:analysis' %}?career_id={{ career.id }}" class="btn btn-outline-primary rounded-pill text-start p-3">
+            <i class="bi bi-radar me-2"></i> Run Skill Gap Analysis
+          </a>
+          <a href="{% url 'roadmap:view' %}?career_id={{ career.id }}" class="btn btn-outline-success rounded-pill text-start p-3">
+            <i class="bi bi-signpost-split me-2"></i> View Learning Roadmap
+          </a>
+          <a href="{% url 'interviews:start' %}" class="btn btn-outline-warning text-dark rounded-pill text-start p-3">
+            <i class="bi bi-mic me-2"></i> Practice Mock Interviews
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

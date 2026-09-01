@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Resume ATS Analyzer | AI Career Guidance{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Resume ATS & Skill Gap Analyzer</h2>
+      <p class="text-muted">Upload your PDF or DOCX resume to extract entities, evaluate completeness, and match against target career requirements using NLP.</p>
+    </div>
+    {% if latest_resume %}
+    <a href="{% url 'resume_analyzer:report' latest_resume.id %}" class="btn btn-outline-primary rounded-pill">
+      <i class="bi bi-file-earmark-text me-1"></i> View Latest Audit Report
+    </a>
+    {% endif %}
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="dashboard-card p-4 p-md-5 border-0 shadow-lg text-center">
+        <div class="bg-primary bg-opacity-10 text-primary d-inline-flex p-4 rounded-circle fs-1 mb-3">
+          <i class="bi bi-cloud-arrow-up-fill"></i>
+        </div>
+        <h3 class="fw-bold">Upload Your Resume</h3>
+        <p class="text-muted small mb-4">Supports PDF, DOCX, and TXT files (Max 10MB)</p>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="mb-4 text-start">
+            <label class="form-label fw-semibold">Target Tech Career for ATS Matching</label>
+            <select name="target_career" class="form-select">
+              {% for c in careers %}
+              <option value="{{ c.id }}" {% if profile.target_career and profile.target_career.id == c.id %}selected{% endif %}>{{ c.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="p-4 border border-2 border-dashed rounded-4 bg-light mb-4">
+            <input type="file" name="resume_file" class="form-control form-control-lg mb-2" accept=".pdf,.docx,.doc,.txt" required>
+            <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i> Files are securely processed and parsed locally with pypdf and regex NLP engines.</small>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow">
+              <i class="bi bi-magic me-1"></i> Analyze Resume & Generate Scorecard
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}My Student Profile | AI Career Guidance{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Academic & Career Profile</h2>
+      <p class="text-muted">Manage your personal information, university credentials, and career goals.</p>
+    </div>
+    <a href="{% url 'students:skills' %}" class="btn btn-outline-primary rounded-pill">
+      <i class="bi bi-sliders me-1"></i> Update Technical Skill Ratings
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="dashboard-card p-4">
+        <form method="POST">
+          {% csrf_token %}
+          
+          <h5 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-person me-2"></i> Personal Details</h5>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">First Name</label>
+              <input type="text" name="first_name" class="form-control" value="{{ profile.user.first_name }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Last Name</label>
+              <input type="text" name="last_name" class="form-control" value="{{ profile.user.last_name }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email Address</label>
+              <input type="email" class="form-control bg-light" value="{{ profile.user.email }}" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Phone Number</label>
+              <input type="text" name="phone" class="form-control" value="{{ profile.phone }}" placeholder="+91 9876543210">
+            </div>
+          </div>
+
+          <h5 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-mortarboard me-2"></i> Academic Information</h5>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">College / University</label>
+              <input type="text" name="college" class="form-control" value="{{ profile.college }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Degree</label>
+              <input type="text" name="degree" class="form-control" value="{{ profile.degree }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Graduation Year</label>
+              <input type="number" name="graduation_year" class="form-control" value="{{ profile.graduation_year }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Branch / Specialization</label>
+              <input type="text" name="branch" class="form-control" value="{{ profile.branch }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Current CGPA</label>
+              <input type="number" step="0.01" name="cgpa" class="form-control" value="{{ profile.cgpa }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Work Style Preference</label>
+              <select name="preferred_work_style" class="form-select">
+                {% for key, val in profile.WORK_STYLE_CHOICES %}
+                <option value="{{ key }}" {% if profile.preferred_work_style == key %}selected{% endif %}>{{ val }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <h5 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="bi bi-award me-2"></i> Practical Experience & Target Career</h5>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Target Tech Career</label>
+              <select name="target_career" class="form-select">
+                <option value="">-- Select Goal Career --</option>
+                {% for c in careers %}
+                <option value="{{ c.id }}" {% if profile.target_career and profile.target_career.id == c.id %}selected{% endif %}>{{ c.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Certifications Count</label>
+              <input type="number" name="certifications_count" class="form-control" value="{{ profile.certifications_count }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Projects Built</label>
+              <input type="number" name="projects_count" class="form-control" value="{{ profile.projects_count }}">
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="internship_done" id="internshipCheck" {% if profile.internship_done %}checked{% endif %}>
+                <label class="form-check-label fw-semibold" for="internshipCheck">
+                  Completed an Industry Internship
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">GitHub Profile URL</label>
+              <input type="url" name="github_url" class="form-control" value="{{ profile.github_url }}" placeholder="https://github.com/yourhandle">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">LinkedIn Profile URL</label>
+              <input type="url" name="linkedin_url" class="form-control" value="{{ profile.linkedin_url }}" placeholder="https://linkedin.com/in/yourhandle">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Short Bio / Career Objective</label>
+              <textarea name="bio" class="form-control" rows="3" placeholder="Aspiring AI Engineer with passion for Deep Learning...">{{ profile.bio }}</textarea>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill fw-bold shadow">
+              Save Profile Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="dashboard-card p-4 text-center mb-4">
+        <div class="bg-primary bg-opacity-10 text-primary d-inline-flex p-4 rounded-circle fs-1 mb-3">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <h5 class="fw-bold mb-1">{{ profile.user.get_full_name|default:profile.user.username }}</h5>
+        <p class="text-muted small mb-3">{{ profile.degree }} in {{ profile.branch }}<br>{{ profile.college }}</p>
+        <hr>
+        <div class="d-flex justify-content-around text-center">
+          <div>
+            <div class="fs-5 fw-bold text-primary">{{ profile.cgpa }}</div>
+            <small class="text-muted">CGPA</small>
+          </div>
+          <div>
+            <div class="fs-5 fw-bold text-success">{{ profile.projects_count }}</div>
+            <small class="text-muted">Projects</small>
+          </div>
+          <div>
+            <div class="fs-5 fw-bold text-warning">{{ profile.certifications_count }}</div>
+            <small class="text-muted">Certifications</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

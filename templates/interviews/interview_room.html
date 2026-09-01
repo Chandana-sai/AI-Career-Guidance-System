@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Simulated Interview Room | {{ career.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="dashboard-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <span class="badge bg-primary bg-opacity-10 text-primary mb-1">{{ career.title }} &bull; {{ session.difficulty }}</span>
+        <h3 class="fw-bold mb-0">Interview In Progress</h3>
+      </div>
+      <span class="badge bg-secondary fs-6 px-3 py-2 rounded-pill">{{ total_questions }} Questions</span>
+    </div>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    
+    {% for q in questions %}
+    <div class="dashboard-card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="badge bg-secondary bg-opacity-10 text-secondary">Question {{ forloop.counter }} of {{ total_questions }} &bull; {{ q.get_category_display }}</span>
+        <span class="badge bg-light text-dark border">{{ q.difficulty }}</span>
+      </div>
+
+      <h5 class="fw-bold text-dark mb-3">{{ q.question_text }}</h5>
+
+      <div class="mb-2">
+        <label class="form-label fw-semibold small text-muted">Your Answer (Be structured, mention key concepts, and explain technical reasoning):</label>
+        <textarea name="answer_{{ q.id }}" class="form-control" rows="4" placeholder="Type your detailed response here..." required></textarea>
+      </div>
+      <small class="text-muted"><i class="bi bi-info-circle me-1"></i> NLP will evaluate key concept coverage, structured explanation, and semantic similarity to model answers.</small>
+    </div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-end mb-5">
+      <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill fw-bold shadow">
+        <i class="bi bi-send-check me-1"></i> Submit All Answers for NLP Evaluation
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}AI Career Advisor Chatbot | NextGen Career.AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">AI Career Advisor Chatbot</h2>
+      <p class="text-muted">Get real-time intelligent guidance on career transitions, missing skills, roadmap steps, and interview strategies.</p>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="dashboard-card border-0 shadow-lg d-flex flex-column" style="height: 680px;">
+        <!-- Header -->
+        <div class="p-3 border-bottom bg-light rounded-top-4 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div class="bg-primary text-white p-2 rounded-circle fs-5">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-0">Career Guidance Assistant</h6>
+              <small class="text-success"><i class="bi bi-circle-fill fs-8"></i> Context-Aware Advisor Online</small>
+            </div>
+          </div>
+          <div>
+            <span class="badge bg-primary bg-opacity-10 text-primary">Target: {{ profile.target_career.title|default:"Software Developer" }}</span>
+          </div>
+        </div>
+
+        <!-- Chat messages container -->
+        <div id="chatMessagesContainer" class="flex-grow-1 p-4 overflow-y-auto" style="background-color: #fafbfc;">
+          <!-- Welcome message -->
+          <div class="d-flex justify-content-start mb-3">
+            <div class="chat-bubble-bot shadow-sm">
+              <div class="fw-semibold text-primary mb-1"><i class="bi bi-robot me-1"></i> AI Career Advisor</div>
+              <div>Hello {{ profile.user.first_name|default:profile.user.username }}! I am your AI career advisor. Ask me anything about career suitability, skill gaps, learning roadmaps, project ideas, or mock interview preparation!</div>
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <button class="chip-btn" onclick="sendChatMessage('What career is suitable for me?')">What career is suitable for me?</button>
+                <button class="chip-btn" onclick="sendChatMessage('What skills am I missing?')">What skills am I missing?</button>
+                <button class="chip-btn" onclick="sendChatMessage('What should I learn after Python?')">What should I learn after Python?</button>
+                <button class="chip-btn" onclick="sendChatMessage('Recommend a portfolio project')">Recommend a portfolio project</button>
+              </div>
+            </div>
+          </div>
+
+          {% for msg in chat_messages %}
+          <div class="d-flex justify-content-{% if msg.sender == 'user' %}end{% else %}start{% endif %} mb-3">
+            <div class="{% if msg.sender == 'user' %}chat-bubble-user{% else %}chat-bubble-bot{% endif %} shadow-sm">
+              {% if msg.sender == 'bot' %}
+                <div class="fw-semibold text-primary mb-1"><i class="bi bi-robot me-1"></i> AI Career Advisor</div>
+              {% endif %}
+              <div>{{ msg.message|linebreaksbr }}</div>
+              {% if msg.suggested_chips %}
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                {% for chip in msg.suggested_chips %}
+                <button class="chip-btn" onclick="sendChatMessage('{{ chip }}')">{{ chip }}</button>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Input Footer -->
+        <div class="p-3 border-top bg-white rounded-bottom-4">
+          <div class="input-group">
+            <input type="text" id="chatInput" class="form-control form-control-lg border-secondary border-opacity-25 rounded-start-pill px-4" placeholder="Ask about careers, skill gaps, roadmaps..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+            <button class="btn btn-primary btn-lg px-4 rounded-end-pill fw-bold shadow-sm" onclick="sendChatMessage()">
+              <i class="bi bi-send-fill me-1"></i> Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

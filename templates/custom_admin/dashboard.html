@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Platform Admin Dashboard | NextGen Career.AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Platform Admin & Model Management</h2>
+      <p class="text-muted">Monitor student metrics, inspect trained ML model weights & metrics, and manage catalog databases.</p>
+    </div>
+    <div class="badge bg-danger fs-6 px-3 py-2 rounded-pill"><i class="bi bi-shield-lock-fill me-1"></i> Administrator Mode</div>
+  </div>
+
+  <!-- Metric Counters -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-primary">
+        <span class="text-muted small fw-semibold">Registered Students</span>
+        <h3 class="fw-bold text-primary mb-1">{{ total_students }}</h3>
+        <small class="text-muted">Avg CGPA: {{ avg_cgpa }}</small>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-success">
+        <span class="text-muted small fw-semibold">Assessments Completed</span>
+        <h3 class="fw-bold text-success mb-1">{{ total_assessments }}</h3>
+        <small class="text-muted">Across 4 core categories</small>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-info">
+        <span class="text-muted small fw-semibold">Resumes Analyzed</span>
+        <h3 class="fw-bold text-info mb-1">{{ total_resumes }}</h3>
+        <small class="text-muted">NLP ATS processed</small>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-warning">
+        <span class="text-muted small fw-semibold">Mock Interviews</span>
+        <h3 class="fw-bold text-warning mb-1">{{ total_interviews }}</h3>
+        <small class="text-muted">Semantic evaluation tests</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ML Model Performance Matrix -->
+  <div class="dashboard-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-dark mb-0"><i class="bi bi-cpu-fill text-primary me-2"></i> Machine Learning Classifiers Performance Comparison</h5>
+      <span class="badge bg-success fs-6">Selected Best: {{ ml_metrics.best_model_name }} ({{ ml_metrics.best_f1_score|floatformat:3 }})</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Algorithm Name</th>
+            <th>Accuracy</th>
+            <th>Precision (Weighted)</th>
+            <th>Recall (Weighted)</th>
+            <th>F1-Score (Weighted)</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m_name, m_data in ml_metrics.models_comparison.items %}
+          <tr {% if m_name == ml_metrics.best_model_name %}class="table-success fw-bold"{% endif %}>
+            <td>{{ m_name }}</td>
+            <td>{{ m_data.accuracy|floatformat:4 }}</td>
+            <td>{{ m_data.precision|floatformat:4 }}</td>
+            <td>{{ m_data.recall|floatformat:4 }}</td>
+            <td>{{ m_data.f1_score|floatformat:4 }}</td>
+            <td>
+              {% if m_name == ml_metrics.best_model_name %}
+              <span class="badge bg-success">Production Active</span>
+              {% else %}
+              <span class="badge bg-secondary bg-opacity-25 text-secondary">Evaluated</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Management Shortcuts & Students Table -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-4">
+      <div class="dashboard-card p-4 h-100">
+        <h5 class="fw-bold text-dark mb-3">Data Management Tools</h5>
+        <div class="list-group gap-2">
+          <a href="{% url 'custom_admin:manage_careers' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center rounded-3 p-3">
+            <div><i class="bi bi-briefcase me-2 text-primary"></i> Manage Careers</div>
+            <span class="badge bg-primary rounded-pill">{{ careers.count }}</span>
+          </a>
+          <a href="{% url 'custom_admin:manage_questions' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center rounded-3 p-3">
+            <div><i class="bi bi-question-circle me-2 text-success"></i> Manage Assessment Questions</div>
+            <span class="badge bg-success rounded-pill">{{ total_questions }}</span>
+          </a>
+          <a href="{% url 'custom_admin:manage_resources' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center rounded-3 p-3">
+            <div><i class="bi bi-book me-2 text-warning"></i> Manage Learning Resources</div>
+            <span class="badge bg-warning text-dark rounded-pill">{{ total_resources }}</span>
+          </a>
+          <a href="/admin/" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center rounded-3 p-3 bg-dark text-white">
+            <div><i class="bi bi-gear-wide-connected me-2"></i> Standard Django Admin</div>
+            <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Trajectory Log -->
+    <div class="col-lg-8">
+      <div class="dashboard-card p-4 h-100">
+        <h5 class="fw-bold text-dark mb-3">Recent Student Activity & Goals</h5>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Student</th>
+                <th>Degree & Branch</th>
+                <th>CGPA</th>
+                <th>Target Career</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in students %}
+              <tr>
+                <td class="fw-bold">{{ s.user.get_full_name|default:s.user.username }}</td>
+                <td>{{ s.degree }} {{ s.branch }}</td>
+                <td><span class="badge bg-light text-dark border">{{ s.cgpa }}</span></td>
+                <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ s.target_career.title|default:"Pending" }}</span></td>
+                <td class="text-muted small">{{ s.created_at|date:"M d" }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-muted">No student profiles registered yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

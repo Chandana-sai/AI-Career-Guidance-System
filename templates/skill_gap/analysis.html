@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Skill Gap Analysis | AI Career Guidance{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Interactive Skill Gap Analysis</h2>
+      <p class="text-muted mb-0">Evaluate your current technical capabilities against real-world industry benchmarks for <strong>{{ target_career.title }}</strong>.</p>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">
+      <form method="GET" class="d-flex align-items-center gap-2">
+        <label class="form-label mb-0 fw-semibold small text-nowrap">Analyze Career:</label>
+        <select name="career_id" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+          {% for c in all_careers %}
+          <option value="{{ c.id }}" {% if target_career.id == c.id %}selected{% endif %}>{{ c.title }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <!-- Metric Overview Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-primary">
+        <span class="text-muted small fw-semibold">Career Readiness</span>
+        <h3 class="fw-bold text-primary mb-1">{{ gap_data.readiness_percentage }}%</h3>
+        <div class="progress" style="height: 6px;">
+          <div class="progress-bar bg-primary" style="width: {{ gap_data.readiness_percentage }}%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-success">
+        <span class="text-muted small fw-semibold">Strong Competencies</span>
+        <h3 class="fw-bold text-success mb-1">{{ gap_data.strong_count }}</h3>
+        <small class="text-muted">Skills exceeding required level</small>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-warning">
+        <span class="text-muted small fw-semibold">Moderate Skills</span>
+        <h3 class="fw-bold text-warning mb-1">{{ gap_data.moderate_count }}</h3>
+        <small class="text-muted">Skills requiring refinement</small>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="dashboard-card p-3 border-start border-4 border-danger">
+        <span class="text-muted small fw-semibold">Critical Skill Gaps</span>
+        <h3 class="fw-bold text-danger mb-1">{{ gap_data.gap_count }}</h3>
+        <small class="text-muted">High-priority missing skills</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Radar & Gap Highlights Row -->
+  <div class="row g-4 mb-4">
+    <!-- Chart.js Radar Chart -->
+    <div class="col-lg-6">
+      <div class="dashboard-card p-4 h-100">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-radar text-primary me-2"></i> Competency Radar Comparison</h5>
+        <div style="position: relative; height: 360px;">
+          <canvas id="detailedRadarChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Priority Actionable Recommendations -->
+    <div class="col-lg-6">
+      <div class="dashboard-card p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h5 class="fw-bold text-dark mb-3"><i class="bi bi-lightning-charge-fill text-warning me-2"></i> Priority Improvement Plan</h5>
+          <p class="text-muted small">Based on your highest deficit gaps in essential requirements for <strong>{{ target_career.title }}</strong>:</p>
+          
+          <div class="list-group list-group-flush gap-2 mb-4">
+            {% for rec in gap_data.priority_recommendations %}
+            <div class="p-3 bg-light rounded-3 d-flex align-items-center gap-3">
+              <span class="badge bg-danger rounded-circle p-2"><i class="bi bi-arrow-up-right"></i></span>
+              <span class="small">{{ rec|safe }}</span>
+            </div>
+            {% empty %}
+            <div class="p-3 bg-light rounded-3 text-success">
+              <i class="bi bi-check-circle-fill me-1"></i> Excellent! You currently meet or exceed all core benchmark levels for this career.
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <a href="{% url 'roadmap:view' %}?career_id={{ target_career.id }}" class="btn btn-primary rounded-pill w-50 fw-bold shadow">
+            <i class="bi bi-signpost-split me-1"></i> Open Learning Roadmap
+          </a>
+          <a href="{% url 'resources:list' %}" class="btn btn-outline-secondary rounded-pill w-50">
+            <i class="bi bi-book me-1"></i> View Recommended Courses
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Skills Benchmark Table -->
+  <div class="dashboard-card p-4">
+    <h5 class="fw-bold text-dark mb-3">Complete Skills Gap Matrix</h5>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Skill Name</th>
+            <th>Category</th>
+            <th>Your Level</th>
+            <th>Target Benchmark</th>
+            <th>Deficit Gap</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Skill Gaps -->
+          {% for g in gap_data.skill_gaps %}
+          <tr class="table-danger bg-opacity-25">
+            <td class="fw-bold">{{ g.name }}</td>
+            <td><span class="badge bg-light text-dark border">{{ g.category }}</span></td>
+            <td><span class="fw-bold text-danger">{{ g.student_level }}/10</span></td>
+            <td>{{ g.required_level }}/10</td>
+            <td><span class="badge bg-danger">-{{ g.gap }}</span></td>
+            <td><span class="badge badge-gap">Critical Gap</span></td>
+          </tr>
+          {% endfor %}
+
+          <!-- Moderate Skills -->
+          {% for m in gap_data.moderate_skills %}
+          <tr class="table-warning bg-opacity-25">
+            <td class="fw-bold">{{ m.name }}</td>
+            <td><span class="badge bg-light text-dark border">{{ m.category }}</span></td>
+            <td><span class="fw-bold text-warning">{{ m.student_level }}/10</span></td>
+            <td>{{ m.required_level }}/10</td>
+            <td><span class="badge bg-warning text-dark">-{{ m.gap }}</span></td>
+            <td><span class="badge badge-moderate">Moderate Deficit</span></td>
+          </tr>
+          {% endfor %}
+
+          <!-- Strong Skills -->
+          {% for s in gap_data.strong_skills %}
+          <tr class="table-success bg-opacity-25">
+            <td class="fw-bold">{{ s.name }}</td>
+            <td><span class="badge bg-light text-dark border">{{ s.category }}</span></td>
+            <td><span class="fw-bold text-success">{{ s.student_level }}/10</span></td>
+            <td>{{ s.required_level }}/10</td>
+            <td><span class="badge bg-success">0.0</span></td>
+            <td><span class="badge badge-strong">Mastered</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const radarLabels = {{ gap_data.radar_chart.labels|safe }};
+  const radarStudent = {{ gap_data.radar_chart.student_scores|safe }};
+  const radarRequired = {{ gap_data.radar_chart.required_scores|safe }};
+
+  const ctx = document.getElementById("detailedRadarChart").getContext("2d");
+  new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: radarLabels,
+      datasets: [
+        {
+          label: "Your Skill Proficiency",
+          data: radarStudent,
+          backgroundColor: "rgba(79, 70, 229, 0.25)",
+          borderColor: "rgba(79, 70, 229, 1)",
+          pointBackgroundColor: "rgba(79, 70, 229, 1)",
+          pointBorderColor: "#fff",
+          borderWidth: 2
+        },
+        {
+          label: "Target Requirement (Benchmark)",
+          data: radarRequired,
+          backgroundColor: "rgba(239, 68, 68, 0.15)",
+          borderColor: "rgba(239, 68, 68, 0.9)",
+          pointBackgroundColor: "rgba(239, 68, 68, 1)",
+          borderDash: [4, 4],
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0,
+          max: 10,
+          ticks: { stepSize: 2 }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Careers | Platform Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Manage Career Tracks</h2>
+      <p class="text-muted">Add, update, or configure career definitions and skill benchmarks.</p>
+    </div>
+    <a href="{% url 'custom_admin:dashboard' %}" class="btn btn-outline-secondary rounded-pill">Back to Admin</a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="dashboard-card p-4">
+        <h5 class="fw-bold text-primary mb-3">Add New Career Track</h5>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Career Title</label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. Blockchain Developer" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Category</label>
+            <input type="text" name="category" class="form-control" value="Software Engineering">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Average Salary Range</label>
+            <input type="text" name="average_salary" class="form-control" value="?8 - ?20 LPA">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Market Demand</label>
+            <select name="market_demand" class="form-select">
+              <option value="Very High">Very High</option>
+              <option value="High" selected>High</option>
+              <option value="Moderate">Moderate</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Role Description</label>
+            <textarea name="description" class="form-control" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold">Create Career Track</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="dashboard-card p-4">
+        <h5 class="fw-bold mb-3">Existing Careers ({{ careers.count }})</h5>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Avg Salary</th>
+                <th>Demand</th>
+                <th>Required Skills</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in careers %}
+              <tr>
+                <td class="fw-bold">{{ c.title }}</td>
+                <td>{{ c.category }}</td>
+                <td>{{ c.average_salary }}</td>
+                <td><span class="badge bg-success">{{ c.market_demand }}</span></td>
+                <td><span class="badge bg-light text-dark border">{{ c.required_skills.count }} Skills</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
