@@ -1,15 +1,15 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}Skill Gap Analysis | AI Career Guidance{% endblock %}
+{% block title %}Skill Gap Analysis | CareerMate{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
+  <!-- Header & Career Switcher -->
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
       <h2 class="fw-bold mb-1">Interactive Skill Gap Analysis</h2>
-      <p class="text-muted mb-0">Evaluate your current technical capabilities against real-world industry benchmarks for <strong>{{ target_career.title }}</strong>.</p>
+      <p class="text-muted mb-0">Benchmarked against industry standards for <strong>{{ target_career.title }}</strong></p>
     </div>
-    
     <div class="d-flex align-items-center gap-2">
       <form method="GET" class="d-flex align-items-center gap-2">
         <label class="form-label mb-0 fw-semibold small text-nowrap">Analyze Career:</label>
@@ -93,8 +93,8 @@
           <a href="{% url 'roadmap:view' %}?career_id={{ target_career.id }}" class="btn btn-primary rounded-pill w-50 fw-bold shadow">
             <i class="bi bi-signpost-split me-1"></i> Open Learning Roadmap
           </a>
-          <a href="{% url 'resources:list' %}" class="btn btn-outline-secondary rounded-pill w-50">
-            <i class="bi bi-book me-1"></i> View Recommended Courses
+          <a href="{% url 'interviews:start' %}" class="btn btn-outline-secondary rounded-pill w-50">
+            <i class="bi bi-mic me-1"></i> Practice Interview
           </a>
         </div>
       </div>

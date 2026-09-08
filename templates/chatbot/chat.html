@@ -1,47 +1,66 @@
 {% extends "base.html" %}
 
-{% block title %}AI Career Advisor Chatbot | NextGen Career.AI{% endblock %}
+{% block title %}CareerMate Assistant ?? | Friendly AI Student Career Companion{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-      <h2 class="fw-bold mb-1">AI Career Advisor Chatbot</h2>
-      <p class="text-muted">Get real-time intelligent guidance on career transitions, missing skills, roadmap steps, and interview strategies.</p>
+      <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
+        <span class="text-primary">CareerMate Assistant</span> ??
+      </h2>
+      <p class="text-muted mb-0">Your friendly career companion &bull; Ask questions, discover learning roadmaps, practice interviews via text or voice!</p>
+    </div>
+    
+    <!-- Language Toggle Bar -->
+    <div class="d-flex align-items-center gap-2 bg-white p-2 rounded-pill shadow-sm border">
+      <span class="small fw-semibold text-muted ms-2"><i class="bi bi-translate me-1"></i> Language:</span>
+      <div class="btn-group btn-group-sm" role="group">
+        <button type="button" class="btn btn-outline-primary rounded-pill px-3" onclick="setChatLanguage(\x27en\x27)">English</button>
+        <button type="button" class="btn btn-outline-primary rounded-pill px-3 ms-1" onclick="setChatLanguage(\x27te\x27)">??????</button>
+        <button type="button" class="btn btn-outline-primary rounded-pill px-3 ms-1" onclick="setChatLanguage(\x27hi\x27)">?????</button>
+      </div>
     </div>
   </div>
 
   <div class="row justify-content-center">
     <div class="col-lg-10">
-      <div class="dashboard-card border-0 shadow-lg d-flex flex-column" style="height: 680px;">
-        <!-- Header -->
+      <div class="dashboard-card border-0 shadow-lg d-flex flex-column" style="height: 700px;">
+        <!-- Card Header -->
         <div class="p-3 border-bottom bg-light rounded-top-4 d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center gap-3">
-            <div class="bg-primary text-white p-2 rounded-circle fs-5">
+            <div class="bg-primary text-white p-2 rounded-circle fs-4 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
               <i class="bi bi-robot"></i>
             </div>
             <div>
-              <h6 class="fw-bold mb-0">Career Guidance Assistant</h6>
-              <small class="text-success"><i class="bi bi-circle-fill fs-8"></i> Context-Aware Advisor Online</small>
+              <h5 class="fw-bold mb-0">CareerMate ??</h5>
+              <small class="text-muted">Your friendly career companion &bull; <span class="text-success"><i class="bi bi-circle-fill fs-8"></i> Online</span></small>
             </div>
           </div>
           <div>
-            <span class="badge bg-primary bg-opacity-10 text-primary">Target: {{ profile.target_career.title|default:"Software Developer" }}</span>
+            <span class="badge bg-primary bg-opacity-10 text-primary p-2">Target Career: {{ profile.target_career.title|default:"Software Developer" }}</span>
           </div>
         </div>
 
         <!-- Chat messages container -->
-        <div id="chatMessagesContainer" class="flex-grow-1 p-4 overflow-y-auto" style="background-color: #fafbfc;">
+        <div id="chatMessagesContainer" class="flex-grow-1 p-4 overflow-y-auto" style="background-color: #f8fafc;">
           <!-- Welcome message -->
           <div class="d-flex justify-content-start mb-3">
             <div class="chat-bubble-bot shadow-sm">
-              <div class="fw-semibold text-primary mb-1"><i class="bi bi-robot me-1"></i> AI Career Advisor</div>
-              <div>Hello {{ profile.user.first_name|default:profile.user.username }}! I am your AI career advisor. Ask me anything about career suitability, skill gaps, learning roadmaps, project ideas, or mock interview preparation!</div>
-              <div class="d-flex flex-wrap gap-2 mt-2">
-                <button class="chip-btn" onclick="sendChatMessage('What career is suitable for me?')">What career is suitable for me?</button>
-                <button class="chip-btn" onclick="sendChatMessage('What skills am I missing?')">What skills am I missing?</button>
-                <button class="chip-btn" onclick="sendChatMessage('What should I learn after Python?')">What should I learn after Python?</button>
-                <button class="chip-btn" onclick="sendChatMessage('Recommend a portfolio project')">Recommend a portfolio project</button>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-semibold text-primary"><i class="bi bi-robot me-1"></i> CareerMate Assistant</span>
+                <button class="btn btn-sm btn-link text-secondary p-0" title="Listen to message" onclick="speakText(\x27Hi there! I am CareerMate, your friendly AI career companion. Tell me what skills you enjoy, and I will guide your career path!\x27)">
+                  <i class="bi bi-volume-up-fill fs-5 text-primary"></i>
+                </button>
+              </div>
+              <div>Hi {{ profile.user.first_name|default:profile.user.username }}! ?? I am <strong>CareerMate</strong>, your friendly AI career companion.<br><br>Tell me what skills you enjoy using, ask about career options, or tap the ?? button to speak in English, ??????, or ?????!</div>
+              
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <button class="chip-btn" onclick="sendChatMessage(\x27What career suits me?\x27)">What career suits me?</button>
+                <button class="chip-btn" onclick="sendChatMessage(\x27Analyze my skills\x27)">Analyze my skills</button>
+                <button class="chip-btn" onclick="sendChatMessage(\x27What should I learn next?\x27)">What should I learn next?</button>
+                <button class="chip-btn" onclick="sendChatMessage(\x27Help me improve my resume\x27)">Help me improve my resume</button>
+                <button class="chip-btn" onclick="sendChatMessage(\x27Recommend a project\x27)">Recommend a project</button>
               </div>
             </div>
           </div>
@@ -50,7 +69,12 @@
           <div class="d-flex justify-content-{% if msg.sender == 'user' %}end{% else %}start{% endif %} mb-3">
             <div class="{% if msg.sender == 'user' %}chat-bubble-user{% else %}chat-bubble-bot{% endif %} shadow-sm">
               {% if msg.sender == 'bot' %}
-                <div class="fw-semibold text-primary mb-1"><i class="bi bi-robot me-1"></i> AI Career Advisor</div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="fw-semibold text-primary"><i class="bi bi-robot me-1"></i> CareerMate Assistant</span>
+                  <button class="btn btn-sm btn-link text-secondary p-0" title="Listen" onclick="speakText('{{ msg.message|escapejs }}')">
+                    <i class="bi bi-volume-up-fill fs-5 text-primary"></i>
+                  </button>
+                </div>
               {% endif %}
               <div>{{ msg.message|linebreaksbr }}</div>
               {% if msg.suggested_chips %}
@@ -65,13 +89,20 @@
           {% endfor %}
         </div>
 
-        <!-- Input Footer -->
+        <!-- Input Footer with Voice and Send -->
         <div class="p-3 border-top bg-white rounded-bottom-4">
           <div class="input-group">
-            <input type="text" id="chatInput" class="form-control form-control-lg border-secondary border-opacity-25 rounded-start-pill px-4" placeholder="Ask about careers, skill gaps, roadmaps..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+            <button type="button" id="micBtn" class="btn btn-light border px-3 rounded-start-pill" title="Click to Speak (Voice Input)" onclick="toggleVoiceInput()">
+              <i class="bi bi-mic-fill text-danger fs-5"></i>
+            </button>
+            <input type="text" id="chatInput" class="form-control form-control-lg border-secondary border-opacity-25 px-3" placeholder="Type your career question or click ?? to speak..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
             <button class="btn btn-primary btn-lg px-4 rounded-end-pill fw-bold shadow-sm" onclick="sendChatMessage()">
               <i class="bi bi-send-fill me-1"></i> Send
             </button>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mt-2 px-2 text-muted fs-8">
+            <span><i class="bi bi-mic-fill text-danger me-1"></i> Speech Recognition supported in English, ??????, and ?????</span>
+            <span><i class="bi bi-volume-up-fill text-primary me-1"></i> Click ?? on any message to read aloud</span>
           </div>
         </div>
       </div>

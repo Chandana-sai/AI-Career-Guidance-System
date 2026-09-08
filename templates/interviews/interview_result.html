@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Interview Scorecard | AI Career Guidance{% endblock %}
+{% block title %}Interview Feedback Scorecard | CareerMate{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -14,13 +14,15 @@
     <div class="display-4 fw-bold text-primary mb-2">{{ session.overall_score }}%</div>
     <p class="lead fs-6 text-dark col-lg-8 mx-auto mb-4">{{ session.feedback_summary }}</p>
 
-    <div class="d-flex justify-content-center gap-3">
-      <a href="{% url 'interviews:start' %}" class="btn btn-outline-primary rounded-pill">Start New Mock Session</a>
+    <div class="d-flex justify-content-center gap-3 mb-3">
+      <a href="{% url 'interviews:start' %}" class="btn btn-outline-primary rounded-pill">Start New Session</a>
       <a href="{% url 'students:dashboard' %}" class="btn btn-primary rounded-pill fw-bold shadow">Back to Dashboard &rarr;</a>
     </div>
+
+    <small class="text-muted d-block"><em>Note: AI feedback provides structural suggestions and concept checks. It is designed for practice and learning.</em></small>
   </div>
 
-  <h4 class="fw-bold mb-3">NLP Question-by-Question Evaluation</h4>
+  <h4 class="fw-bold mb-3">Question-by-Question Detailed Feedback</h4>
   {% for resp in responses %}
   <div class="dashboard-card p-4 mb-3 border-start border-4 {% if resp.nlp_score >= 75 %}border-success{% elif resp.nlp_score >= 55 %}border-warning{% else %}border-danger{% endif %}">
     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -33,7 +35,7 @@
     <div class="d-flex gap-3 text-muted small mb-3">
       <span><i class="bi bi-fonts me-1"></i> {{ resp.word_count }} Words</span>
       <span><i class="bi bi-check2-all me-1"></i> Concept Coverage: {{ resp.keyword_coverage }}%</span>
-      <span><i class="bi bi-shuffle me-1"></i> Semantic Cosine Similarity: {{ resp.similarity_score }}%</span>
+      <span><i class="bi bi-shuffle me-1"></i> Semantic Match: {{ resp.similarity_score }}%</span>
     </div>
 
     <div class="p-3 bg-light rounded-3 mb-3 small">
@@ -43,13 +45,13 @@
 
     {% if resp.feedback %}
     <div class="p-3 border rounded-3 mb-3 small bg-white">
-      <span class="text-primary fw-bold d-block mb-1"><i class="bi bi-chat-quote-fill me-1"></i> AI Feedback:</span>
+      <span class="text-primary fw-bold d-block mb-1"><i class="bi bi-chat-quote-fill me-1"></i> AI Suggestions:</span>
       <p class="mb-0" style="white-space: pre-line;">{{ resp.feedback }}</p>
     </div>
     {% endif %}
 
     <div class="small">
-      <span class="text-muted fw-bold">Standard Reference Answer: </span>
+      <span class="text-muted fw-bold">Model Answer / Key Points: </span>
       <span class="text-muted">{{ resp.question.reference_answer }}</span>
     </div>
   </div>

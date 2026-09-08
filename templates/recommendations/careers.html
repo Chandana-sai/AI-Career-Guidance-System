@@ -1,19 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}ML Career Recommendations | AI Career Guidance{% endblock %}
+{% block title %}AI Career Recommendations | CareerMate{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-      <h2 class="fw-bold mb-1">AI-Powered Career Recommendations</h2>
-      <p class="text-muted mb-0">Predicted by our multi-model machine learning pipeline trained on 20+ academic, technical, and interest dimensions.</p>
+      <h2 class="fw-bold mb-1">Your Recommended Career Paths</h2>
+      <p class="text-muted mb-0">Personalized suitability analysis evaluated by CareerMate AI based on your academic profile, skill ratings, and interests.</p>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <span class="badge bg-secondary bg-opacity-10 text-secondary p-2"><i class="bi bi-cpu me-1"></i> Active Model: {{ model_name }}</span>
       <a href="{% url 'recommendations:list' %}?recalculate=1" class="btn btn-primary rounded-pill fw-semibold shadow-sm">
-        <i class="bi bi-arrow-clockwise me-1"></i> Recalculate
+        <i class="bi bi-arrow-clockwise me-1"></i> Recalculate Guidance
       </a>
+    </div>
+  </div>
+
+  <!-- Disclaimer Alert -->
+  <div class="alert alert-info border-0 rounded-4 p-3 mb-4 d-flex align-items-center gap-3 bg-primary bg-opacity-10 text-dark">
+    <i class="bi bi-info-circle-fill fs-4 text-primary"></i>
+    <div class="small">
+      <strong>Career Guidance Note:</strong> These recommendations are calculated using machine learning based on your current inputs. They are meant to guide your learning and exploration, not as rigid predictions. You can explore and switch your target track anytime!
     </div>
   </div>
 
@@ -22,24 +29,31 @@
     <div class="col-lg-6">
       <div class="dashboard-card p-4 h-100 d-flex flex-column justify-content-between border-top border-4 {% if forloop.first %}border-primary shadow-lg{% else %}border-secondary{% endif %}">
         <div>
+          <!-- Header with Match Badge -->
           <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
-              <div class="d-flex align-items-center gap-2">
+              <div class="d-flex align-items-center gap-2 mb-1">
                 <span class="badge bg-primary rounded-pill px-3 py-1">Rank #{{ rec.rank }}</span>
-                {% if forloop.first %}
-                <span class="badge bg-success bg-opacity-25 text-success border border-success fw-bold">Top Match</span>
+                {% if rec.suitability_score >= 85 %}
+                  <span class="badge bg-success bg-opacity-25 text-success border border-success fw-bold">High Match</span>
+                {% elif rec.suitability_score >= 70 %}
+                  <span class="badge bg-primary bg-opacity-25 text-primary border border-primary fw-bold">Good Match</span>
+                {% else %}
+                  <span class="badge bg-warning bg-opacity-25 text-dark border border-warning fw-bold">Moderate Match</span>
                 {% endif %}
+                
                 {% if profile.target_career.id == rec.career.id %}
-                <span class="badge bg-info text-dark fw-bold"><i class="bi bi-pin-angle-fill me-1"></i> Selected Target</span>
+                  <span class="badge bg-info text-dark fw-bold"><i class="bi bi-pin-angle-fill me-1"></i> Active Goal</span>
                 {% endif %}
               </div>
+              
               <h3 class="fw-bold mt-2 mb-1">{{ rec.career.title }}</h3>
               <div class="badge bg-light text-dark border">{{ rec.career.category }}</div>
             </div>
             
             <div class="text-end">
               <div class="display-6 fw-bold text-primary">{{ rec.suitability_score }}%</div>
-              <small class="text-muted text-uppercase fw-semibold">Suitability Score</small>
+              <small class="text-muted text-uppercase fw-semibold">Match Score</small>
             </div>
           </div>
 
@@ -54,22 +68,29 @@
             </div>
           </div>
 
-          <div class="mb-4">
-            <label class="fw-semibold small text-uppercase text-muted mb-2 d-block">Essential Required Skills:</label>
+          <!-- Required Skills -->
+          <div class="mb-3">
+            <label class="fw-semibold small text-muted text-uppercase mb-2 d-block">Industry Required Skills:</label>
             <div class="d-flex flex-wrap gap-1">
-              {% for req in rec.career.required_skills.all|slice:":6" %}
+              {% for req in rec.career.required_skills.all %}
               <span class="badge bg-light text-dark border">{{ req.skill.name }} ({{ req.required_level }}/10)</span>
               {% endfor %}
             </div>
+          </div>
+
+          <!-- Suggested Next Steps -->
+          <div class="p-3 bg-light rounded-3 mb-3 small">
+            <div class="mb-1"><strong class="text-primary"><i class="bi bi-signpost-split me-1"></i> Learning Path:</strong> 5-Stage structured roadmap available.</div>
+            <div><strong class="text-success"><i class="bi bi-folder-check me-1"></i> Portfolio Projects:</strong> Build 2+ hands-on deliverables.</div>
           </div>
         </div>
 
         <div class="d-flex gap-2 pt-3 border-top">
           <a href="{% url 'recommendations:detail' rec.career.slug %}" class="btn btn-outline-secondary rounded-pill w-50">
-            Career Details
+            Career Overview
           </a>
           <a href="{% url 'recommendations:set_target' rec.career.id %}" class="btn btn-primary rounded-pill w-50 fw-bold">
-            {% if profile.target_career.id == rec.career.id %}Active Target{% else %}Set as Target Goal &rarr;{% endif %}
+            {% if profile.target_career.id == rec.career.id %}Selected as Goal{% else %}Set as Target Career &rarr;{% endif %}
           </a>
         </div>
       </div>
@@ -78,9 +99,9 @@
     <div class="col-12">
       <div class="dashboard-card p-5 text-center">
         <i class="bi bi-stars text-primary display-4 mb-3"></i>
-        <h4>No ML Predictions Generated Yet</h4>
-        <p class="text-muted">Take the career assessments and rate your technical skills to generate your model scores.</p>
-        <a href="{% url 'recommendations:list' %}?recalculate=1" class="btn btn-primary rounded-pill fw-bold">Generate Predictions Now</a>
+        <h4>Get Your Career Guidance Recommendations</h4>
+        <p class="text-muted">Take the career assessments or update your skills to generate your matches.</p>
+        <a href="{% url 'recommendations:list' %}?recalculate=1" class="btn btn-primary rounded-pill fw-bold">Calculate Matches Now</a>
       </div>
     </div>
     {% endfor %}

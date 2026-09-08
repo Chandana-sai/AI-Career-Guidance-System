@@ -1,3 +1,109 @@
+let currentLanguage = localStorage.getItem("careerMateLang") || "en";
+let isListening = false;
+let recognition = null;
+
+// Initialize Web Speech Recognition
+if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = function (event) {
+    const transcript = event.results[0][0].transcript;
+    const inputEl = document.getElementById("chatInput");
+    if (inputEl) {
+      inputEl.value = transcript;
+      sendChatMessage(transcript);
+    }
+    stopVoiceRecognition();
+  };
+
+  recognition.onerror = function (event) {
+    console.warn("Speech recognition error:", event.error);
+    stopVoiceRecognition();
+  };
+
+  recognition.onend = function () {
+    stopVoiceRecognition();
+  };
+}
+
+function setChatLanguage(lang) {
+  currentLanguage = lang;
+  localStorage.setItem("careerMateLang", lang);
+  
+  // Update select dropdowns if present
+  document.querySelectorAll(".lang-selector").forEach(el => el.value = lang);
+  
+  // Update UI headers if element exists
+  const langBadge = document.getElementById("activeLangBadge");
+  if (langBadge) {
+    const labels = { en: "English", te: "?????? (Telugu)", hi: "????? (Hindi)" };
+    langBadge.innerText = labels[lang] || "English";
+  }
+}
+
+function toggleVoiceInput() {
+  if (!recognition) {
+    alert("Speech recognition is not supported in this browser. Please use Google Chrome, Edge, or a Web Speech-enabled browser.");
+    return;
+  }
+
+  const micBtn = document.getElementById("micBtn");
+  if (!isListening) {
+    // Set speech recognition language
+    const langCodes = { en: "en-IN", te: "te-IN", hi: "hi-IN" };
+    recognition.lang = langCodes[currentLanguage] || "en-US";
+
+    try {
+      recognition.start();
+      isListening = true;
+      if (micBtn) {
+        micBtn.classList.add("btn-danger", "pulse-animation");
+        micBtn.classList.remove("btn-outline-primary", "btn-light");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    stopVoiceRecognition();
+  }
+}
+
+function stopVoiceRecognition() {
+  if (recognition && isListening) {
+    recognition.stop();
+  }
+  isListening = false;
+  const micBtn = document.getElementById("micBtn");
+  if (micBtn) {
+    micBtn.classList.remove("btn-danger", "pulse-animation");
+    micBtn.classList.add("btn-light");
+  }
+}
+
+function speakText(text) {
+  if (!("speechSynthesis" in window)) {
+    alert("Text-to-Speech is not supported in this browser.");
+    return;
+  }
+
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+
+  // Strip markdown formatting characters
+  const cleanText = text.replace(/[\*\_#`]/g, "").replace(/<[^>]*>?/gm, "");
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+
+  const langCodes = { en: "en-IN", te: "te-IN", hi: "hi-IN" };
+  utterance.lang = langCodes[currentLanguage] || "en-US";
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+
+  window.speechSynthesis.speak(utterance);
+}
+
 function sendChatMessage(messageText) {
   const inputEl = document.getElementById("chatInput");
   const msg = messageText || (inputEl ? inputEl.value.trim() : "");
@@ -19,7 +125,7 @@ function sendChatMessage(messageText) {
   const typingBubble = document.createElement("div");
   typingBubble.id = "typingIndicator";
   typingBubble.className = "d-flex justify-content-start mb-3";
-  typingBubble.innerHTML = `<div class="chat-bubble-bot shadow-sm"><i class="bi bi-three-dots"></i> AI Advisor is thinking...</div>`;
+  typingBubble.innerHTML = `<div class="chat-bubble-bot shadow-sm"><i class="bi bi-three-dots"></i> CareerMate is typing...</div>`;
   container.appendChild(typingBubble);
   container.scrollTop = container.scrollHeight;
 
@@ -29,7 +135,7 @@ function sendChatMessage(messageText) {
       "Content-Type": "application/json",
       "X-CSRFToken": getCsrfToken()
     },
-    body: JSON.stringify({ message: msg })
+    body: JSON.stringify({ message: msg, language: currentLanguage })
   })
     .then(res => res.json())
     .then(data => {
@@ -39,7 +145,6 @@ function sendChatMessage(messageText) {
       const botBubble = document.createElement("div");
       botBubble.className = "d-flex justify-content-start mb-3";
       
-      // Format markdown-like bold and linebreaks
       let formattedReply = escapeHtml(data.reply)
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\n/g, "<br>");
@@ -51,8 +156,16 @@ function sendChatMessage(messageText) {
           `</div>`;
       }
 
+      // Encode for speech button
+      const rawTextForSpeech = escapeHtml(data.reply).replace(/\"/g, "&quot;");
+
       botBubble.innerHTML = `<div class="chat-bubble-bot shadow-sm">
-        <div class="fw-semibold text-primary mb-1"><i class="bi bi-robot me-1"></i> AI Career Advisor</div>
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="fw-semibold text-primary"><i class="bi bi-robot me-1"></i> CareerMate Assistant</span>
+          <button class="btn btn-sm btn-link text-secondary p-0" title="Listen / ?????? / ?????" onclick="speakText(\x27${rawTextForSpeech}\x27)">
+            <i class="bi bi-volume-up-fill fs-5 text-primary"></i>
+          </button>
+        </div>
         <div>${formattedReply}</div>
         ${chipsHtml}
       </div>`;

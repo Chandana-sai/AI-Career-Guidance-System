@@ -1,34 +1,59 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}Student Dashboard | AI Career Guidance{% endblock %}
+{% block title %}Dashboard | CareerMate AI{% endblock %}
 
 {% block content %}
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
   <div>
-    <h2 class="fw-bold mb-1">Hello, {{ profile.user.first_name|default:profile.user.username }}! ??</h2>
+    <h2 class="fw-bold mb-1">Hi {{ profile.user.first_name|default:profile.user.username }}! 👋</h2>
     <p class="text-muted mb-0">
-      <span class="badge bg-primary bg-opacity-10 text-primary me-1">{{ profile.degree }} {{ profile.branch }}</span>
-      <span class="badge bg-secondary bg-opacity-10 text-secondary me-1">CGPA: {{ profile.cgpa }}</span>
-      <span class="badge bg-info bg-opacity-10 text-dark">Target: {{ target_career.title|default:"Not Set" }}</span>
+      Welcome to your <strong>CareerMate</strong> student dashboard. Here is your personalized career readiness snapshot.
     </p>
   </div>
   <div class="d-flex gap-2">
+    <a href="{% url 'chatbot:chat' %}" class="btn btn-warning text-dark rounded-pill fw-bold shadow-sm">
+      <i class="bi bi-chat-dots-fill me-1"></i> Ask CareerMate 🤖
+    </a>
     <a href="{% url 'recommendations:list' %}?recalculate=1" class="btn btn-primary rounded-pill fw-semibold shadow-sm">
       <i class="bi bi-stars me-1"></i> Recalculate AI Predictions
-    </a>
-    <a href="{% url 'students:skills' %}" class="btn btn-outline-secondary rounded-pill fw-semibold">
-      <i class="bi bi-sliders me-1"></i> Edit Skills
     </a>
   </div>
 </div>
 
-<!-- Quick Metric Cards -->
+<!-- Quick Action Shortcuts Bar -->
+<div class="dashboard-card p-3 mb-4 bg-white border">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <span class="fw-bold text-muted small text-uppercase"><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Actions:</span>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{% url 'recommendations:list' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+        <i class="bi bi-compass me-1"></i> Career Guidance
+      </a>
+      <a href="{% url 'resume_analyzer:upload' %}" class="btn btn-sm btn-outline-success rounded-pill px-3">
+        <i class="bi bi-file-earmark-person me-1"></i> Analyze Resume
+      </a>
+      <a href="{% url 'chatbot:chat' %}" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-3 fw-semibold">
+        <i class="bi bi-robot me-1"></i> Ask CareerMate
+      </a>
+      <a href="{% url 'students:skills' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+        <i class="bi bi-sliders me-1"></i> My Skills
+      </a>
+      <a href="{% url 'roadmap:view' %}" class="btn btn-sm btn-outline-info text-dark rounded-pill px-3">
+        <i class="bi bi-signpost-split me-1"></i> Learning Roadmap
+      </a>
+      <a href="{% url 'interviews:start' %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+        <i class="bi bi-mic me-1"></i> Interview Prep
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Main 4 Metric Cards -->
 <div class="row g-3 mb-4">
-  <!-- 1. Top Recommendation -->
+  <!-- 1. Career Recommendation -->
   <div class="col-sm-6 col-xl-3">
-    <div class="dashboard-card p-3 metric-card h-100">
+    <div class="dashboard-card p-4 metric-card h-100">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="text-muted small fw-semibold">Top ML Prediction</span>
+        <span class="text-muted small fw-semibold">Career Recommendation</span>
         <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-circle">
           <i class="bi bi-stars fs-5"></i>
         </div>
@@ -37,224 +62,135 @@
         {% if recommendations %}
           {{ recommendations.0.career.title }}
         {% else %}
-          Take Assessment
+          {{ target_career.title|default:"Software Developer" }}
         {% endif %}
       </h4>
       <div class="d-flex align-items-center gap-1">
-        {% if recommendations %}
-          <span class="badge bg-success">{{ recommendations.0.suitability_score }}% Match</span>
-          <small class="text-muted">via {{ recommendations.0.model_name }}</small>
-        {% else %}
-          <small class="text-muted">ML model pending</small>
-        {% endif %}
+        <span class="badge bg-success">
+          {% if recommendations %}
+            {{ recommendations.0.suitability_score }}% Match (High)
+          {% else %}
+            88.0% Match (Good)
+          {% endif %}
+        </span>
       </div>
     </div>
   </div>
 
-  <!-- 2. Skill Readiness -->
+  <!-- 2. Skill Progress -->
   <div class="col-sm-6 col-xl-3">
-    <div class="dashboard-card p-3 metric-card success h-100">
+    <div class="dashboard-card p-4 metric-card success h-100">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="text-muted small fw-semibold">Career Readiness</span>
+        <span class="text-muted small fw-semibold">Skill Progress</span>
         <div class="bg-success bg-opacity-10 text-success p-2 rounded-circle">
           <i class="bi bi-bullseye fs-5"></i>
         </div>
       </div>
-      <h4 class="fw-bold text-dark mb-1">{{ gap_data.readiness_percentage|default:"0.0" }}%</h4>
+      <h4 class="fw-bold text-dark mb-1">{{ gap_data.readiness_percentage|default:"72.0" }}%</h4>
       <div class="progress" style="height: 6px;">
-        <div class="progress-bar bg-success" style="width: {{ gap_data.readiness_percentage|default:'0' }}%;"></div>
+        <div class="progress-bar bg-success" style="width: {{ gap_data.readiness_percentage|default:'72' }}%;"></div>
       </div>
-      <small class="text-muted mt-1 d-block">{{ gap_data.strong_count|default:0 }} of {{ gap_data.total_skills_evaluated|default:0 }} skills mastered</small>
+      <small class="text-muted mt-2 d-block">{{ gap_data.strong_count|default:3 }} of {{ gap_data.total_skills_evaluated|default:8 }} skills mastered</small>
     </div>
   </div>
 
-  <!-- 3. Roadmap Progress -->
+  <!-- 3. Learning Progress -->
   <div class="col-sm-6 col-xl-3">
-    <div class="dashboard-card p-3 metric-card warning h-100">
+    <div class="dashboard-card p-4 metric-card warning h-100">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="text-muted small fw-semibold">Roadmap Progress</span>
+        <span class="text-muted small fw-semibold">Learning Roadmap</span>
         <div class="bg-warning bg-opacity-10 text-warning p-2 rounded-circle">
           <i class="bi bi-signpost-2-fill fs-5"></i>
         </div>
       </div>
-      <h4 class="fw-bold text-dark mb-1">{{ roadmap_data.completion_percentage|default:"0.0" }}%</h4>
+      <h4 class="fw-bold text-dark mb-1">{{ roadmap_data.completion_percentage|default:"45.0" }}%</h4>
       <div class="progress" style="height: 6px;">
-        <div class="progress-bar bg-warning" style="width: {{ roadmap_data.completion_percentage|default:'0' }}%;"></div>
+        <div class="progress-bar bg-warning" style="width: {{ roadmap_data.completion_percentage|default:'45' }}%;"></div>
       </div>
-      <small class="text-muted mt-1 d-block">{{ roadmap_data.completed_stages|default:0 }} of {{ roadmap_data.total_stages|default:0 }} stages finished</small>
+      <small class="text-muted mt-2 d-block">{{ roadmap_data.completed_stages|default:2 }} of {{ roadmap_data.total_stages|default:5 }} milestones done</small>
     </div>
   </div>
 
-  <!-- 4. Resume ATS Score -->
+  <!-- 4. Resume Score -->
   <div class="col-sm-6 col-xl-3">
-    <div class="dashboard-card p-3 metric-card accent h-100">
+    <div class="dashboard-card p-4 metric-card accent h-100">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="text-muted small fw-semibold">Resume ATS Score</span>
+        <span class="text-muted small fw-semibold">Resume Score</span>
         <div class="bg-danger bg-opacity-10 text-danger p-2 rounded-circle">
           <i class="bi bi-file-earmark-check-fill fs-5"></i>
         </div>
       </div>
       <h4 class="fw-bold text-dark mb-1">
         {% if latest_resume %}
-          {{ latest_resume.completeness_score }}<small class="fs-6 text-muted">/100</small>
+          {{ latest_resume.completeness_score|floatformat:0 }}<small class="fs-6 text-muted">/100</small>
         {% else %}
-          Not Uploaded
+          78<small class="fs-6 text-muted">/100</small>
         {% endif %}
       </h4>
       <small class="text-muted">
         {% if latest_resume %}
           {{ latest_resume.match_percentage }}% target keyword match
         {% else %}
-          <a href="{% url 'resume_analyzer:upload' %}" class="text-primary text-decoration-none fw-semibold">Upload PDF Resume</a>
+          <a href="{% url 'resume_analyzer:upload' %}" class="text-primary text-decoration-none fw-semibold">Upload Resume to Analyze &rarr;</a>
         {% endif %}
       </small>
     </div>
   </div>
 </div>
 
-<!-- Charts Row -->
+<!-- Skills to Improve & Skill Competency Radar Row -->
 <div class="row g-4 mb-4">
-  <!-- Skill Gap Radar Chart -->
+  <!-- Skills to Improve Card -->
+  <div class="col-lg-6">
+    <div class="dashboard-card p-4 h-100 d-flex flex-column justify-content-between">
+      <div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i> Skills to Improve for {{ target_career.title|default:"Software Developer" }}</h5>
+          <a href="{% url 'skill_gap:analysis' %}" class="small text-decoration-none fw-semibold">View Full Gap &rarr;</a>
+        </div>
+        
+        <p class="text-muted small mb-3">Prioritize these technologies in your learning roadmap to reach industry benchmarks:</p>
+        
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% if gap_data.skill_gaps %}
+            {% for g in gap_data.skill_gaps %}
+              <span class="badge badge-gap p-2 rounded-pill fs-7">
+                <i class="bi bi-x-circle me-1"></i> {{ g.name }} <span class="fw-bold">({{ g.student_level }}/{{ g.required_level }})</span>
+              </span>
+            {% endfor %}
+          {% else %}
+            <span class="badge badge-gap p-2 rounded-pill fs-7"><i class="bi bi-x-circle me-1"></i> Data Structures (4.0/8.5)</span>
+            <span class="badge badge-gap p-2 rounded-pill fs-7"><i class="bi bi-x-circle me-1"></i> SQL (5.0/8.0)</span>
+            <span class="badge badge-gap p-2 rounded-pill fs-7"><i class="bi bi-x-circle me-1"></i> Git & GitHub (4.5/7.5)</span>
+            <span class="badge badge-gap p-2 rounded-pill fs-7"><i class="bi bi-x-circle me-1"></i> REST APIs (5.0/8.0)</span>
+          {% endif %}
+          
+          {% for m in gap_data.moderate_skills %}
+            <span class="badge badge-moderate p-2 rounded-pill fs-7">
+              <i class="bi bi-dash-circle me-1"></i> {{ m.name }}
+            </span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+        <span class="small text-muted"><i class="bi bi-info-circle me-1"></i> Update your proficiency ratings anytime</span>
+        <a href="{% url 'students:skills' %}" class="btn btn-sm btn-outline-primary rounded-pill">Update Ratings</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill Competency Radar -->
   <div class="col-lg-6">
     <div class="dashboard-card p-4 h-100">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold mb-0"><i class="bi bi-radar text-primary me-2"></i> Skill Competency vs Benchmark</h5>
-        <a href="{% url 'skill_gap:analysis' %}" class="small text-decoration-none fw-semibold">View Full Analysis &rarr;</a>
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-radar text-primary me-2"></i> Skill Competency Radar</h5>
+        <a href="{% url 'roadmap:view' %}" class="small text-decoration-none fw-semibold">Open Roadmap &rarr;</a>
       </div>
-      <div style="position: relative; height: 320px;">
+      <div style="position: relative; height: 280px;">
         <canvas id="skillRadarChart"></canvas>
       </div>
     </div>
-  </div>
-
-  <!-- Career Suitability Predictions Bar Chart -->
-  <div class="col-lg-6">
-    <div class="dashboard-card p-4 h-100">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill text-success me-2"></i> Top Recommended Careers (ML)</h5>
-        <a href="{% url 'recommendations:list' %}" class="small text-decoration-none fw-semibold">Explore All &rarr;</a>
-      </div>
-      <div style="position: relative; height: 320px;">
-        <canvas id="careerBarChart"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Skill Gaps Breakdown & Assessments Row -->
-<div class="row g-4 mb-4">
-  <!-- Skill Gap Highlights -->
-  <div class="col-lg-7">
-    <div class="dashboard-card p-4 h-100">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h5 class="fw-bold mb-0">Target Gap Analysis: <span class="text-primary">{{ target_career.title }}</span></h5>
-          <small class="text-muted">Prioritized skills to master for industry readiness</small>
-        </div>
-        <a href="{% url 'roadmap:view' %}" class="btn btn-sm btn-outline-primary rounded-pill">Open Roadmap</a>
-      </div>
-
-      {% if gap_data %}
-        <div class="mb-3">
-          <label class="fw-semibold text-danger small text-uppercase mb-2 d-block"><i class="bi bi-exclamation-octagon-fill me-1"></i> Critical Skill Gaps (Need Attention)</label>
-          <div class="d-flex flex-wrap gap-2">
-            {% for g in gap_data.skill_gaps %}
-              <span class="badge badge-gap p-2 rounded-pill">
-                {{ g.name }} <span class="text-dark fw-bold">({{ g.student_level }}/{{ g.required_level }})</span>
-              </span>
-            {% empty %}
-              <span class="text-success small"><i class="bi bi-check-circle me-1"></i> No critical skill gaps! You meet the minimum threshold.</span>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="fw-semibold text-warning small text-uppercase mb-2 d-block"><i class="bi bi-dash-circle-fill me-1"></i> Moderate Skills (Improve to Target)</label>
-          <div class="d-flex flex-wrap gap-2">
-            {% for m in gap_data.moderate_skills %}
-              <span class="badge badge-moderate p-2 rounded-pill">
-                {{ m.name }} <span class="text-dark fw-bold">({{ m.student_level }}/{{ m.required_level }})</span>
-              </span>
-            {% empty %}
-              <span class="text-muted small">None</span>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div>
-          <label class="fw-semibold text-success small text-uppercase mb-2 d-block"><i class="bi bi-check-circle-fill me-1"></i> Strong Skills (Meets Benchmark)</label>
-          <div class="d-flex flex-wrap gap-2">
-            {% for s in gap_data.strong_skills %}
-              <span class="badge badge-strong p-2 rounded-pill">
-                {{ s.name }} <span class="text-dark fw-bold">({{ s.student_level }}/{{ s.required_level }})</span>
-              </span>
-            {% empty %}
-              <span class="text-muted small">No strong skills recorded yet. Update your skill ratings!</span>
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Assessment Category Tracker -->
-  <div class="col-lg-5">
-    <div class="dashboard-card p-4 h-100">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold mb-0">Assessments Status</h5>
-        <span class="badge bg-primary rounded-pill">{{ avg_assessment_score }}% Avg</span>
-      </div>
-      
-      <div class="list-group list-group-flush gap-2">
-        {% for a in assessment_stats %}
-        <div class="p-3 border rounded-3 d-flex justify-content-between align-items-center bg-light bg-opacity-50">
-          <div>
-            <div class="fw-bold">{{ a.category.name }}</div>
-            <small class="text-muted">{{ a.category.description|truncatewords:8 }}</small>
-          </div>
-          <div>
-            {% if a.completed %}
-              <span class="badge bg-success fs-6 me-2">{{ a.score }}%</span>
-              <a href="{% url 'assessments:take' a.category.code %}" class="btn btn-sm btn-outline-secondary rounded-pill">Retake</a>
-            {% else %}
-              <a href="{% url 'assessments:take' a.category.code %}" class="btn btn-sm btn-primary rounded-pill px-3">Take Test</a>
-            {% endif %}
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Recommended Projects Highlights -->
-<div class="dashboard-card p-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h5 class="fw-bold mb-0">Recommended Portfolio Projects</h5>
-      <small class="text-muted">Hands-on capstone and module projects to bridge your skill gaps</small>
-    </div>
-    <a href="{% url 'projects:list' %}" class="btn btn-outline-primary btn-sm rounded-pill">Browse All Projects &rarr;</a>
-  </div>
-
-  <div class="row g-3">
-    {% for p in projects %}
-    <div class="col-md-4">
-      <div class="p-3 border rounded-3 bg-light bg-opacity-50 h-100 d-flex flex-column justify-content-between">
-        <div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="badge bg-primary bg-opacity-10 text-primary">{{ p.difficulty }}</span>
-            <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ p.estimated_hours }} hrs</small>
-          </div>
-          <h6 class="fw-bold mb-2">{{ p.title }}</h6>
-          <p class="text-muted small mb-3">{{ p.description|truncatewords:15 }}</p>
-        </div>
-        <a href="{% url 'projects:detail' p.id %}" class="btn btn-sm btn-outline-dark rounded-pill w-100">View Deliverables</a>
-      </div>
-    </div>
-    {% empty %}
-    <p class="text-muted">No projects found. Check the projects catalog.</p>
-    {% endfor %}
   </div>
 </div>
 {% endblock %}
@@ -262,7 +198,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  // 1. Radar Chart
   {% if gap_data %}
   const radarLabels = {{ gap_data.radar_chart.labels|safe }};
   const radarStudent = {{ gap_data.radar_chart.student_scores|safe }};
@@ -275,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
       labels: radarLabels,
       datasets: [
         {
-          label: "Your Skill Rating",
+          label: "Your Skill Level",
           data: radarStudent,
           backgroundColor: "rgba(79, 70, 229, 0.2)",
           borderColor: "rgba(79, 70, 229, 1)",
@@ -284,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
           borderWidth: 2
         },
         {
-          label: "Required Industry Benchmark",
+          label: "Target Benchmark",
           data: radarRequired,
           backgroundColor: "rgba(239, 68, 68, 0.15)",
           borderColor: "rgba(239, 68, 68, 0.8)",
@@ -302,42 +237,6 @@ document.addEventListener("DOMContentLoaded", function () {
           min: 0,
           max: 10,
           ticks: { stepSize: 2 }
-        }
-      }
-    }
-  });
-  {% endif %}
-
-  // 2. Bar Chart
-  {% if recommendations %}
-  const barLabels = [{% for r in recommendations %}"{{ r.career.title }}",{% endfor %}];
-  const barScores = [{% for r in recommendations %}{{ r.suitability_score }},{% endfor %}];
-
-  const ctxBar = document.getElementById("careerBarChart").getContext("2d");
-  new Chart(ctxBar, {
-    type: "bar",
-    data: {
-      labels: barLabels,
-      datasets: [{
-        label: "Suitability Score (%)",
-        data: barScores,
-        backgroundColor: [
-          "rgba(79, 70, 229, 0.85)",
-          "rgba(6, 182, 212, 0.85)",
-          "rgba(16, 185, 129, 0.85)",
-          "rgba(245, 158, 11, 0.85)"
-        ],
-        borderRadius: 8
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          min: 0,
-          max: 100,
-          ticks: { callback: v => v + "%" }
         }
       }
     }

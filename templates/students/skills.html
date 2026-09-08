@@ -1,13 +1,13 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}Technical Skill Ratings | AI Career Guidance{% endblock %}
+{% block title %}Technical Skill Ratings | CareerMate{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
       <h2 class="fw-bold mb-1">Technical Skill Ratings (0 to 10)</h2>
-      <p class="text-muted">Rate your self-assessed proficiency for each technology to enable precise ML recommendations and skill gap analysis.</p>
+      <p class="text-muted mb-0">Drag the sliders to rate your self-assessed proficiency for each technology. This directly updates your ML career matches and skill gap analysis.</p>
     </div>
     <a href="{% url 'students:dashboard' %}" class="btn btn-outline-secondary rounded-pill">
       <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
@@ -28,10 +28,10 @@
           <div class="p-3 border rounded-3 bg-light bg-opacity-50 h-100">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="fw-bold text-dark">{{ item.skill.name }}</span>
-              <span class="badge bg-primary fs-6" id="badge_{{ item.skill.id }}">{{ item.current_level|floatformat:1 }}/10</span>
+              <span class="badge {% if item.current_level >= 8 %}bg-success{% elif item.current_level >= 5 %}bg-primary{% else %}bg-warning text-dark{% endif %} fs-6" id="badge_{{ item.skill.id }}">{{ item.current_level|floatformat:1 }}/10</span>
             </div>
-            <input type="range" class="form-range" name="skill_{{ item.skill.id }}" id="slider_{{ item.skill.id }}" min="0" max="10" step="0.5" value="{{ item.current_level }}" oninput="document.getElementById(\x27badge_{{ item.skill.id }}\x27).innerText = this.value + \x27/10\x27">
-            <div class="d-flex justify-content-between text-muted fs-7">
+            <input type="range" class="form-range skill-slider" name="skill_{{ item.skill.id }}" id="slider_{{ item.skill.id }}" data-badge-id="badge_{{ item.skill.id }}" min="0" max="10" step="0.5" value="{{ item.current_level }}">
+            <div class="d-flex justify-content-between text-muted fs-7 mt-1">
               <span>0 (Beginner)</span>
               <span>5 (Working)</span>
               <span>10 (Expert)</span>
@@ -43,11 +43,38 @@
     </div>
     {% endfor %}
 
-    <div class="d-flex justify-content-end sticky-bottom bg-white p-3 border-top rounded-4 shadow mb-4">
+    <!-- Sticky Bottom Bar -->
+    <div class="d-flex justify-content-between align-items-center sticky-bottom bg-white p-3 border-top rounded-4 shadow mb-4">
+      <span class="text-muted small"><i class="bi bi-info-circle me-1"></i> Ratings saved here automatically recalculate your AI Career Matches and Radar Charts.</span>
       <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill fw-bold shadow">
         <i class="bi bi-save me-1"></i> Save Skill Ratings & Recalculate Gaps
       </button>
     </div>
   </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const sliders = document.querySelectorAll(".skill-slider");
+  sliders.forEach(slider => {
+    slider.addEventListener("input", function () {
+      const badgeId = this.getAttribute("data-badge-id");
+      const badge = document.getElementById(badgeId);
+      if (badge) {
+        const val = parseFloat(this.value).toFixed(1);
+        badge.textContent = val + "/10";
+        if (val >= 8.0) {
+          badge.className = "badge bg-success fs-6";
+        } else if (val >= 5.0) {
+          badge.className = "badge bg-primary fs-6";
+        } else {
+          badge.className = "badge bg-warning text-dark fs-6";
+        }
+      }
+    });
+  });
+});
+</script>
 {% endblock %}

@@ -12,7 +12,9 @@ def chat_view(request):
         profile, _ = StudentProfile.objects.get_or_create(user=request.user)
         conversation, _ = ChatConversation.objects.get_or_create(student=profile)
     else:
-        session_key = request.session.session_key or request.session.create() or request.session.session_key
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
         conversation, _ = ChatConversation.objects.get_or_create(session_key=session_key)
         
     messages_qs = conversation.messages.all()
@@ -36,6 +38,8 @@ def chat_api(request):
         data = request.POST
         
     user_msg = data.get("message", "").strip()
+    lang = data.get("language", "en")
+    
     if not user_msg:
         return JsonResponse({"error": "Message is empty"}, status=400)
         
@@ -56,8 +60,8 @@ def chat_api(request):
         message=user_msg
     )
     
-    # Generate bot reply
-    bot_reply, chips = generate_bot_response(user_msg, profile)
+    # Generate multilingual bot reply
+    bot_reply, chips = generate_bot_response(user_msg, profile, lang=lang)
     
     # Save bot message
     ChatMessage.objects.create(
@@ -69,5 +73,6 @@ def chat_api(request):
     
     return JsonResponse({
         "reply": bot_reply,
-        "suggested_chips": chips
+        "suggested_chips": chips,
+        "language": lang
     })

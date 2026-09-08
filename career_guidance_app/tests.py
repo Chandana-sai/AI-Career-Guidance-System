@@ -1,4 +1,4 @@
-from django.test import TestCase, Client
+﻿from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
 import os
@@ -12,8 +12,9 @@ from interviews.models import InterviewQuestion, InterviewSession
 from interviews.services import evaluate_interview_answer
 from ml_models.model_service import CareerModelService
 from skill_gap.services import calculate_skill_gap
+from chatbot.services import generate_bot_response
 
-class CareerGuidancePlatformTests(TestCase):
+class CareerMatePlatformTests(TestCase):
     def setUp(self):
         self.client = Client()
         
@@ -22,8 +23,8 @@ class CareerGuidancePlatformTests(TestCase):
             username="student_test",
             email="student@test.com",
             password="testpassword123",
-            first_name="Priya",
-            last_name="Verma"
+            first_name="Chandana",
+            last_name="Reddy"
         )
         
         # Seed skills
@@ -36,13 +37,13 @@ class CareerGuidancePlatformTests(TestCase):
             title="Data Scientist",
             category="Data & Analytics",
             description="Analyzes complex data.",
-            average_salary="?9 - ?22 LPA"
+            average_salary="₹9 - ₹22 LPA"
         )
         self.career_sd = Career.objects.create(
             title="Software Developer",
             category="Software Engineering",
             description="Builds applications.",
-            average_salary="?7 - ?18 LPA"
+            average_salary="₹7 - ₹18 LPA"
         )
         
         CareerSkill.objects.create(career=self.career_ds, skill=self.py_skill, required_level=8.5, weight=1.0)
@@ -68,9 +69,9 @@ class CareerGuidancePlatformTests(TestCase):
     def test_skill_gap_calculation(self):
         gap_res = calculate_skill_gap(self.profile, self.career_ds)
         self.assertIsNotNone(gap_res)
-        self.assertEqual(gap_res["strong_count"], 1) # Python
-        self.assertEqual(gap_res["moderate_count"], 1) # SQL
-        self.assertEqual(gap_res["gap_count"], 1) # Machine Learning
+        self.assertEqual(gap_res["strong_count"], 1)
+        self.assertEqual(gap_res["moderate_count"], 1)
+        self.assertEqual(gap_res["gap_count"], 1)
         self.assertGreater(gap_res["readiness_percentage"], 0.0)
         self.assertIn("Python", gap_res["radar_chart"]["labels"])
 
@@ -117,15 +118,15 @@ class CareerGuidancePlatformTests(TestCase):
 
     def test_resume_nlp_analysis(self):
         sample_resume_text = """
-        Priya Verma
-        Email: priya.verma@example.com | Phone: (555) 123-4567
+        Chandana Reddy
+        Email: chandana@example.com | Phone: (555) 123-4567
         Education: B.Tech in Computer Science and Engineering, CGPA 8.5
         Technical Skills: Python, SQL, Git, Linux, Docker, Machine Learning
         Projects: E-Commerce Analytics Web App with Django and PostgreSQL
         Experience: Software Engineering Intern at Tech Corp
         """
         analysis = analyze_resume_content(sample_resume_text, self.career_ds)
-        self.assertEqual(analysis["email"], "priya.verma@example.com")
+        self.assertEqual(analysis["email"], "chandana@example.com")
         self.assertIn("Python", analysis["detected_skills"])
         self.assertIn("SQL", analysis["detected_skills"])
         self.assertGreater(analysis["completeness_score"], 70.0)
@@ -145,3 +146,17 @@ class CareerGuidancePlatformTests(TestCase):
         self.assertGreaterEqual(eval_res["nlp_score"], 65.0)
         self.assertGreaterEqual(eval_res["keyword_coverage"], 60.0)
         self.assertIn("feedback", eval_res)
+
+    def test_multilingual_chatbot_responses(self):
+        # English
+        reply_en, chips_en = generate_bot_response("Which career is good for me?", self.profile, lang="en")
+        self.assertIn("recommendations", reply_en.lower())
+        self.assertIn("What career suits me?", chips_en)
+        
+        # Telugu
+        reply_te, chips_te = generate_bot_response("కెరీర్ సిఫార్సులు", self.profile, lang="te")
+        self.assertTrue(len(reply_te) > 10)
+        
+        # Hindi
+        reply_hi, chips_hi = generate_bot_response("करियर विकल्प", self.profile, lang="hi")
+        self.assertTrue(len(reply_hi) > 10)

@@ -1,6 +1,69 @@
 import re
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+import math
+from collections import Counter
+
+def _tokenize(text):
+    # Lowercase and split on non-alphanumeric characters
+    tokens = re.findall(r"\b[a-z0-9]+\b", text.lower())
+    # English stop words list
+    stop_words = {
+        "a", "about", "above", "after", "again", "against", "all", "am", "an", "and",
+        "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being",
+        "below", "between", "both", "but", "by", "can", "cannot", "could", "couldn't",
+        "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during",
+        "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't",
+        "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here",
+        "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i",
+        "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's",
+        "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself",
+        "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought",
+        "our", "ours", "ourselves", "out", "over", "own", "same", "shan't", "she",
+        "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such",
+        "than", "that", "that's", "the", "their", "theirs", "them", "themselves",
+        "then", "there", "there's", "these", "they", "they'd", "they'll", "they're",
+        "they've", "this", "those", "through", "to", "too", "under", "until", "up",
+        "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were",
+        "weren't", "what", "what's", "when", "when's", "where", "where's", "which",
+        "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would",
+        "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours",
+        "yourself", "yourselves"
+    }
+    return [t for t in tokens if t not in stop_words and len(t) > 1]
+
+def _compute_tfidf_cosine_similarity(text1, text2):
+    tokens1 = _tokenize(text1)
+    tokens2 = _tokenize(text2)
+    
+    if not tokens1 or not tokens2:
+        return 0.0
+        
+    counts1 = Counter(tokens1)
+    counts2 = Counter(tokens2)
+    
+    vocab = list(set(counts1.keys()).union(set(counts2.keys())))
+    
+    # Compute TF-IDF weights (2 documents)
+    vec1 = []
+    vec2 = []
+    for word in vocab:
+        tf1 = counts1.get(word, 0) / len(tokens1)
+        tf2 = counts2.get(word, 0) / len(tokens2)
+        # Document frequency
+        df = (1 if word in counts1 else 0) + (1 if word in counts2 else 0)
+        idf = math.log((2.0 + 1.0) / (df + 1.0)) + 1.0
+        
+        vec1.append(tf1 * idf)
+        vec2.append(tf2 * idf)
+        
+    # Cosine Similarity
+    dot_product = sum(v1 * v2 for v1, v2 in zip(vec1, vec2))
+    mag1 = math.sqrt(sum(v1 ** 2 for v1 in vec1))
+    mag2 = math.sqrt(sum(v2 ** 2 for v2 in vec2))
+    
+    if mag1 == 0 or mag2 == 0:
+        return 0.0
+        
+    return dot_product / (mag1 * mag2)
 
 def evaluate_interview_answer(question, candidate_answer):
     """
@@ -29,11 +92,9 @@ def evaluate_interview_answer(question, candidate_answer):
     missing_keys = []
     
     for kc in key_concepts:
-        # Check if keyword or parts appear in answer
         if kc in text_lower:
             matched_keys.append(kc)
         else:
-            # Check individual sub-words for multi-word concepts
             sub_words = kc.split()
             if len(sub_words) > 1 and all(sw in text_lower for sw in sub_words):
                 matched_keys.append(kc)
@@ -46,14 +107,8 @@ def evaluate_interview_answer(question, candidate_answer):
         
     # 2. TF-IDF Cosine Similarity
     ref_text = question.reference_answer
-    sim_score = 0.0
-    try:
-        vectorizer = TfidfVectorizer(stop_words="english")
-        tfidf_matrix = vectorizer.fit_transform([text, ref_text])
-        cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-        sim_score = round(float(cos_sim) * 100.0, 1)
-    except Exception:
-        sim_score = coverage_pct
+    sim_ratio = _compute_tfidf_cosine_similarity(text, ref_text)
+    sim_score = round(float(sim_ratio) * 100.0, 1)
         
     # 3. Depth Factor
     depth_multiplier = 1.0
@@ -63,7 +118,6 @@ def evaluate_interview_answer(question, candidate_answer):
         depth_multiplier = 1.05
         
     # 4. Aggregated Score
-    # 50% keyword coverage + 50% semantic cosine similarity, scaled by depth
     weighted_score = (0.50 * coverage_pct) + (0.50 * sim_score)
     final_score = min(98.0, max(20.0, round(weighted_score * depth_multiplier, 1)))
     

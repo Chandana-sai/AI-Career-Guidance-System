@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}AI Career Guidance & Skill Gap Recommendation System{% endblock %}</title>
+  <title>{% block title %}CareerMate | AI Student Career Guidance and Resume Assistant{% endblock %}</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,10 +30,10 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top border-bottom border-secondary border-opacity-25 py-2">
       <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white fs-5" href="/">
-          <div class="bg-primary text-white rounded p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-            <i class="bi bi-mortarboard-fill"></i>
+          <div class="bg-primary text-white rounded-3 p-1 d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px;">
+            <i class="bi bi-robot fs-5"></i>
           </div>
-          <span>NextGen<span class="text-primary">Career.AI</span></span>
+          <span>Career<span class="text-primary">Mate</span> <small class="text-white-50 fs-7 d-none d-sm-inline">| AI Student Guide</small></span>
         </a>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
@@ -47,18 +47,37 @@
               <a class="nav-link text-light" href="{% url 'students:dashboard' %}"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-light" href="{% url 'recommendations:list' %}"><i class="bi bi-compass me-1"></i> Career Recommendations</a>
+              <a class="nav-link text-light" href="{% url 'recommendations:list' %}"><i class="bi bi-compass me-1"></i> Career Guidance</a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-light" href="{% url 'skill_gap:analysis' %}"><i class="bi bi-radar me-1"></i> Skill Gap</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link text-light" href="{% url 'resume_analyzer:upload' %}"><i class="bi bi-file-earmark-person me-1"></i> Resume Analyzer</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link text-light" href="{% url 'roadmap:view' %}"><i class="bi bi-signpost-split me-1"></i> Roadmap</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-light" href="{% url 'interviews:start' %}"><i class="bi bi-mic-fill me-1"></i> Interview Prep</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-light" href="{% url 'chatbot:chat' %}"><i class="bi bi-chat-dots-fill me-1 text-warning"></i> Ask CareerMate</a>
             </li>
             {% endif %}
           </ul>
           
           <div class="d-flex align-items-center gap-3">
+            <!-- Language Selector Dropdown -->
+            <div class="d-flex align-items-center gap-1 bg-secondary bg-opacity-25 py-1 px-2 rounded-pill border border-secondary border-opacity-50">
+              <i class="bi bi-translate text-info small ms-1"></i>
+              <select class="form-select form-select-sm bg-transparent text-white border-0 py-0 lang-selector" style="cursor: pointer; width: auto;" onchange="setChatLanguage(this.value)">
+                <option value="en" class="text-dark" selected>English</option>
+                <option value="te" class="text-dark">తెలుగు (Telugu)</option>
+                <option value="hi" class="text-dark">हिंदी (Hindi)</option>
+              </select>
+            </div>
+
             {% if user.is_authenticated %}
             <div class="dropdown">
               <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center gap-2 py-1 px-3 rounded-pill" type="button" data-bs-toggle="dropdown">
@@ -67,7 +86,7 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                 <li><a class="dropdown-item" href="{% url 'students:profile' %}"><i class="bi bi-person me-2"></i> My Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'students:skills' %}"><i class="bi bi-sliders me-2"></i> Skill Ratings</a></li>
+                <li><a class="dropdown-item" href="{% url 'students:skills' %}"><i class="bi bi-sliders me-2"></i> My Skills (0-10)</a></li>
                 {% if user.is_staff %}
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-primary" href="{% url 'custom_admin:dashboard' %}"><i class="bi bi-shield-lock me-2"></i> Admin Analytics</a></li>
@@ -92,7 +111,7 @@
         <!-- Sidebar Navigation -->
         <nav class="col-md-3 col-lg-2 d-md-block sidebar py-4">
           <div class="position-sticky">
-            <div class="px-3 mb-3 text-uppercase fs-7 text-secondary fw-bold">Platform Menu</div>
+            <div class="px-3 mb-3 text-uppercase fs-7 text-secondary fw-bold">CareerMate Menu</div>
             <ul class="nav flex-column">
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.app_name == 'students' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'students:dashboard' %}">
@@ -101,27 +120,21 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'skills' %}active{% endif %}" href="{% url 'students:skills' %}">
-                  <i class="bi bi-sliders2-vertical"></i>
-                  <span>Technical Skills</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.app_name == 'assessments' %}active{% endif %}" href="{% url 'assessments:list' %}">
-                  <i class="bi bi-card-checklist"></i>
-                  <span>Career Assessments</span>
-                </a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.app_name == 'recommendations' %}active{% endif %}" href="{% url 'recommendations:list' %}">
                   <i class="bi bi-stars"></i>
-                  <span>ML Career Predictor</span>
+                  <span>AI Career Guidance</span>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.app_name == 'skill_gap' %}active{% endif %}" href="{% url 'skill_gap:analysis' %}">
                   <i class="bi bi-diagram-3-fill"></i>
-                  <span>Skill Gap Analysis</span>
+                  <span>Skill Gap Analyzer</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.app_name == 'resume_analyzer' %}active{% endif %}" href="{% url 'resume_analyzer:upload' %}">
+                  <i class="bi bi-file-earmark-person"></i>
+                  <span>Resume Analyzer</span>
                 </a>
               </li>
               <li class="nav-item">
@@ -131,33 +144,27 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.app_name == 'resources' %}active{% endif %}" href="{% url 'resources:list' %}">
-                  <i class="bi bi-book-half"></i>
-                  <span>Courses & Resources</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.app_name == 'projects' %}active{% endif %}" href="{% url 'projects:list' %}">
-                  <i class="bi bi-folder-check"></i>
-                  <span>Project Ideas</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.app_name == 'resume_analyzer' %}active{% endif %}" href="{% url 'resume_analyzer:upload' %}">
-                  <i class="bi bi-file-earmark-person"></i>
-                  <span>Resume ATS Analyzer</span>
-                </a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.app_name == 'interviews' %}active{% endif %}" href="{% url 'interviews:start' %}">
                   <i class="bi bi-mic-fill"></i>
-                  <span>Mock Interview</span>
+                  <span>Interview Prep</span>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.app_name == 'chatbot' %}active{% endif %}" href="{% url 'chatbot:chat' %}">
-                  <i class="bi bi-chat-square-dots-fill"></i>
-                  <span>AI Career Chatbot</span>
+                  <i class="bi bi-chat-square-dots-fill text-warning"></i>
+                  <span>CareerMate Chat 🤖</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'skills' %}active{% endif %}" href="{% url 'students:skills' %}">
+                  <i class="bi bi-sliders2-vertical"></i>
+                  <span>My Skills (0-10)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'students:profile' %}">
+                  <i class="bi bi-person-gear"></i>
+                  <span>Student Profile</span>
                 </a>
               </li>
             </ul>
@@ -203,7 +210,7 @@
 
     <!-- Floating Chatbot Launcher -->
     {% if user.is_authenticated %}
-    <div class="chatbot-fab shadow" data-bs-toggle="modal" data-bs-target="#chatbotModal" title="Chat with AI Career Advisor">
+    <div class="chatbot-fab shadow" data-bs-toggle="modal" data-bs-target="#chatbotModal" title="Chat with CareerMate Assistant">
       <i class="bi bi-chat-dots-fill"></i>
     </div>
 
@@ -213,33 +220,56 @@
         <div class="modal-content rounded-4 border-0 shadow-lg">
           <div class="modal-header bg-primary text-white py-3 px-4 rounded-top-4">
             <div class="d-flex align-items-center gap-2">
-              <i class="bi bi-robot fs-4"></i>
+              <div class="bg-white text-primary p-2 rounded-circle fs-5 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                <i class="bi bi-robot"></i>
+              </div>
               <div>
-                <h5 class="modal-title fw-bold mb-0">AI Career Guidance Advisor</h5>
-                <small class="text-white text-opacity-75">Instant answers for career paths, skill gaps, and learning advice</small>
+                <h5 class="modal-title fw-bold mb-0">CareerMate Assistant 🤖</h5>
+                <small class="text-white text-opacity-75">Your friendly AI career companion &bull; Voice & Multilingual Ready</small>
               </div>
             </div>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="d-flex align-items-center gap-2">
+              <select class="form-select form-select-sm bg-light text-dark border-0 rounded-pill lang-selector" onchange="setChatLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="te">తెలుగు (Telugu)</option>
+                <option value="hi">हिंदी (Hindi)</option>
+              </select>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
           </div>
           <div class="modal-body p-4">
-            <div id="chatMessagesContainer" class="overflow-y-auto mb-3" style="max-height: 420px; min-height: 280px;">
+            <div id="chatMessagesContainer" class="overflow-y-auto mb-3" style="max-height: 400px; min-height: 280px;">
               <div class="d-flex justify-content-start mb-3">
                 <div class="chat-bubble-bot shadow-sm">
-                  <div class="fw-semibold text-primary mb-1"><i class="bi bi-robot me-1"></i> AI Career Advisor</div>
-                  <div>Hello! I am your AI career advisor. Ask me anything about suitable career roles, required skills, interview prep, or roadmaps!</div>
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-semibold text-primary"><i class="bi bi-robot me-1"></i> CareerMate Assistant</span>
+                    <button class="btn btn-sm btn-link text-secondary p-0" title="Listen" onclick="speakText('Hello! I am CareerMate, your friendly AI career companion. Ask me anything or click the microphone to speak!')">
+                      <i class="bi bi-volume-up-fill fs-5 text-primary"></i>
+                    </button>
+                  </div>
+                  <div>Hi there! 😊 I am <strong>CareerMate</strong>, your friendly AI career buddy. Ask me about careers, missing skills, roadmaps, interview tips, or click the 🎤 button to speak!</div>
                   <div class="d-flex flex-wrap gap-2 mt-2">
-                    <button class="chip-btn" onclick="sendChatMessage('What career is suitable for me?')">What career is suitable for me?</button>
+                    <button class="chip-btn" onclick="sendChatMessage('Which career is good for me?')">Which career is good for me?</button>
                     <button class="chip-btn" onclick="sendChatMessage('What skills am I missing?')">What skills am I missing?</button>
-                    <button class="chip-btn" onclick="sendChatMessage('Recommend a project')">Recommend a project</button>
+                    <button class="chip-btn" onclick="sendChatMessage('Show learning roadmap')">Show learning roadmap</button>
+                    <button class="chip-btn" onclick="sendChatMessage('Help me improve my resume')">Help me improve my resume</button>
                   </div>
                 </div>
               </div>
             </div>
+            
             <div class="input-group">
-              <input type="text" id="chatInput" class="form-control py-2 px-3 rounded-start-pill border-secondary border-opacity-25" placeholder="Ask your question here..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+              <button type="button" id="micBtn" class="btn btn-light border px-3 rounded-start-pill" title="Speak your question (Voice Input)" onclick="toggleVoiceInput()">
+                <i class="bi bi-mic-fill text-danger fs-5"></i>
+              </button>
+              <input type="text" id="chatInput" class="form-control py-2 px-3 border-secondary border-opacity-25" placeholder="Type or click 🎤 to speak your question..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
               <button class="btn btn-primary px-4 rounded-end-pill fw-semibold" onclick="sendChatMessage()">
                 <i class="bi bi-send-fill me-1"></i> Send
               </button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2 px-2 text-muted fs-8">
+              <span><i class="bi bi-mic me-1"></i> Speak in English, తెలుగు, or हिंदी</span>
+              <span><i class="bi bi-volume-up me-1"></i> Click 🔊 to listen to answers</span>
             </div>
           </div>
         </div>
@@ -250,7 +280,7 @@
     <!-- Footer -->
     <footer class="bg-white border-top py-3 mt-auto text-center text-muted fs-7">
       <div class="container">
-        <span>AI-Powered Career Guidance, Skill Gap Analysis and Learning Recommendation System &copy; 2026. Built with Django, Scikit-Learn & Bootstrap 5.</span>
+        <span><strong>CareerMate</strong> - AI Student Career Guidance and Resume Assistant &copy; 2026. Built with Django, Scikit-Learn & Bootstrap 5.</span>
       </div>
     </footer>
   </div>

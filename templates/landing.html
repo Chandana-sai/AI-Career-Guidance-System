@@ -1,192 +1,157 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}NextGen Career.AI | Intelligent Career Guidance & Skill Gap Recommendation System{% endblock %}
+{% block title %}CareerMate - AI Student Career Guidance and Resume Assistant{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-gradient py-5 px-3 px-md-5 text-center text-md-start">
-  <div class="container py-4">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-7">
-        <div class="badge bg-primary bg-opacity-25 text-white border border-primary border-opacity-50 px-3 py-2 rounded-pill mb-3">
-          <i class="bi bi-stars me-1 text-warning"></i> AI-Powered B.Tech Career Platform
-        </div>
-        <h1 class="display-4 fw-extrabold text-white lh-1 mb-3">
-          Predict Your Ideal Tech Career. <br class="d-none d-lg-inline">
-          <span class="text-info">Bridge Your Skill Gaps.</span>
-        </h1>
-        <p class="lead text-light text-opacity-75 mb-4">
-          Harness the power of Machine Learning algorithms, automated skill benchmarking, personalized stage-by-stage learning roadmaps, resume NLP analysis, and simulated mock interviews tailored for CSE engineering students.
-        </p>
-        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-start">
-          {% if user.is_authenticated %}
-          <a href="{% url 'students:dashboard' %}" class="btn btn-primary btn-lg px-4 py-2 rounded-pill fw-bold shadow">
-            <i class="bi bi-speedometer2 me-2"></i> Open Student Dashboard
-          </a>
-          <a href="{% url 'recommendations:list' %}" class="btn btn-outline-light btn-lg px-4 py-2 rounded-pill fw-semibold">
-            <i class="bi bi-compass me-2"></i> View ML Predictions
-          </a>
-          {% else %}
-          <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5 py-2 rounded-pill fw-bold shadow">
-            Start Free Assessment <i class="bi bi-arrow-right ms-2"></i>
-          </a>
-          <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4 py-2 rounded-pill fw-semibold">
-            Student Login
-          </a>
-          {% endif %}
-        </div>
-      </div>
-      <div class="col-lg-5">
-        <div class="dashboard-card p-4 text-dark shadow-lg border-0 rounded-4">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-cpu me-2"></i> Live ML Suitability Engine</h6>
-            <span class="badge bg-success">93.6% Model Accuracy</span>
+<div class="container-fluid px-0">
+  <!-- Hero Section -->
+  <section class="hero-gradient text-white py-5 px-3 px-md-5 rounded-4 mb-5 shadow-lg">
+    <div class="container py-4">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-7">
+          <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 mb-3 fw-semibold">
+            <i class="bi bi-robot me-1 text-warning"></i> AI Student Career Companion
+          </span>
+          <h1 class="display-4 fw-bold mb-3 lh-sm">
+            Discover Your Ideal Career Path with <span class="text-warning">CareerMate</span>
+          </h1>
+          <p class="lead text-light text-opacity-75 mb-4">
+            A friendly, intelligent platform for students to assess skills, uncover hidden career potential, analyze resumes with NLP, and chat in English, తెలుగు, or हिंदी via text & voice!
+          </p>
+          
+          <div class="d-flex flex-wrap gap-3">
+            {% if user.is_authenticated %}
+            <a href="{% url 'students:dashboard' %}" class="btn btn-warning btn-lg px-4 rounded-pill fw-bold text-dark shadow">
+              <i class="bi bi-speedometer2 me-1"></i> Open My Dashboard
+            </a>
+            <a href="{% url 'chatbot:chat' %}" class="btn btn-outline-light btn-lg px-4 rounded-pill fw-semibold">
+              <i class="bi bi-chat-dots-fill me-1"></i> Chat with CareerMate
+            </a>
+            {% else %}
+            <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-4 rounded-pill fw-bold text-dark shadow">
+              <i class="bi bi-person-plus-fill me-1"></i> Get Started Free
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4 rounded-pill fw-semibold">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Student Login
+            </a>
+            {% endif %}
           </div>
-          <div class="list-group list-group-flush gap-2 mb-3">
-            <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
-              <div>
-                <div class="fw-bold">Data Scientist</div>
-                <small class="text-muted">Python, Statistics, Machine Learning</small>
+        </div>
+        
+        <div class="col-lg-5 text-center">
+          <div class="bg-white bg-opacity-10 backdrop-blur p-4 rounded-4 border border-white border-opacity-25 shadow-lg text-start text-light">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="bg-warning text-dark p-3 rounded-circle fs-3">
+                <i class="bi bi-stars"></i>
               </div>
-              <span class="badge bg-primary fs-6">94.5% Match</span>
+              <div>
+                <h5 class="fw-bold mb-0 text-white">Smart Career Recommendation</h5>
+                <small class="text-white-50">Trained on 3,500+ student profiles</small>
+              </div>
             </div>
-            <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
-              <div>
-                <div class="fw-bold">Machine Learning Engineer</div>
-                <small class="text-muted">PyTorch, Docker, MLOps, Algorithms</small>
+            <div class="p-3 bg-dark bg-opacity-50 rounded-3 mb-3">
+              <div class="d-flex justify-content-between text-white small mb-1">
+                <span>Software Developer</span>
+                <span class="text-warning fw-bold">88% Match</span>
               </div>
-              <span class="badge bg-info text-dark fs-6">88.2% Match</span>
+              <div class="progress" style="height: 6px;">
+                <div class="progress-bar bg-warning" style="width: 88%;"></div>
+              </div>
             </div>
-            <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
-              <div>
-                <div class="fw-bold">Software Developer</div>
-                <small class="text-muted">Java, DSA, SQL, System Design</small>
+            <div class="p-3 bg-dark bg-opacity-50 rounded-3 mb-3">
+              <div class="d-flex justify-content-between text-white small mb-1">
+                <span>Data Analyst</span>
+                <span class="text-info fw-bold">78% Match</span>
               </div>
-              <span class="badge bg-secondary fs-6">82.0% Match</span>
+              <div class="progress" style="height: 6px;">
+                <div class="progress-bar bg-info" style="width: 78%;"></div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between text-white-50 small mt-2">
+              <span><i class="bi bi-translate text-info me-1"></i> English / తెలుగు / हिंदी</span>
+              <span><i class="bi bi-mic text-danger me-1"></i> Voice Enabled</span>
             </div>
           </div>
-          <small class="text-muted d-block text-center"><i class="bi bi-shield-check text-success me-1"></i> Multi-Model Classification (SVM, RF, Gradient Boost, KNN)</small>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Key Stats Counter -->
-<section class="py-4 bg-white border-bottom shadow-sm">
-  <div class="container">
-    <div class="row text-center g-4">
-      <div class="col-6 col-md-3">
-        <div class="fs-2 fw-bold text-primary">{{ total_students }}+</div>
-        <div class="text-muted small">Engineering Students</div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="fs-2 fw-bold text-info">11</div>
-        <div class="text-muted small">Career Roles Evaluated</div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="fs-2 fw-bold text-success">{{ total_skills }}+</div>
-        <div class="text-muted small">Technical Skills Mapped</div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="fs-2 fw-bold text-warning">6</div>
-        <div class="text-muted small">Trained ML Classifiers</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Feature Pillars -->
-<section class="py-5 bg-light">
-  <div class="container py-4">
+  <!-- 6 Core Feature Cards -->
+  <section class="container mb-5">
     <div class="text-center mb-5">
-      <h2 class="fw-bold mb-2">End-to-End Career Acceleration Pipeline</h2>
-      <p class="text-muted col-lg-8 mx-auto">From real-time academic skill analysis to simulated AI interviews, get a complete personalized roadmap to land your dream tech job.</p>
+      <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-semibold">Everything You Need</span>
+      <h2 class="fw-bold mt-2">Designed Specially for Engineering Students</h2>
+      <p class="text-muted">Explore the core features that guide you from skill self-assessment to interview readiness.</p>
     </div>
-    
+
     <div class="row g-4">
       <!-- 1 -->
-      <div class="col-md-4">
+      <div class="col-md-6 col-lg-4">
         <div class="dashboard-card p-4 h-100">
-          <div class="text-primary fs-2 mb-3"><i class="bi bi-stars"></i></div>
-          <h5 class="fw-bold">1. ML Career Prediction</h5>
-          <p class="text-muted small">Evaluates CGPA, 10+ programming skill ratings, core aptitudes, and interests across trained Machine Learning classifiers to output ranked career suitability scores.</p>
+          <div class="bg-primary bg-opacity-10 text-primary d-inline-flex p-3 rounded-circle fs-3 mb-3">
+            <i class="bi bi-stars"></i>
+          </div>
+          <h5 class="fw-bold mb-2">AI Career Guidance</h5>
+          <p class="text-muted small mb-0">Evaluate your academic record, programming skills, and aptitudes to discover high-match careers with confidence.</p>
         </div>
       </div>
-      <!-- 2 -->
-      <div class="col-md-4">
-        <div class="dashboard-card p-4 h-100">
-          <div class="text-info fs-2 mb-3"><i class="bi bi-diagram-3-fill"></i></div>
-          <h5 class="fw-bold">2. Skill Gap Analysis</h5>
-          <p class="text-muted small">Interactive Radar & Bar visualizations comparing your current proficiency against target industry benchmarks (Strong, Moderate, and Skill Gaps).</p>
-        </div>
-      </div>
-      <!-- 3 -->
-      <div class="col-md-4">
-        <div class="dashboard-card p-4 h-100">
-          <div class="text-success fs-2 mb-3"><i class="bi bi-signpost-split"></i></div>
-          <h5 class="fw-bold">3. Personalized Roadmap</h5>
-          <p class="text-muted small">Dynamic multi-stage learning curriculum that prioritizes your specific missing skills and tracks milestone completion percentage.</p>
-        </div>
-      </div>
-      <!-- 4 -->
-      <div class="col-md-4">
-        <div class="dashboard-card p-4 h-100">
-          <div class="text-warning fs-2 mb-3"><i class="bi bi-book-half"></i></div>
-          <h5 class="fw-bold">4. Curated Courses & Projects</h5>
-          <p class="text-muted small">Content-based matching of top-rated learning resources and capstone portfolio projects aligned with your target career track.</p>
-        </div>
-      </div>
-      <!-- 5 -->
-      <div class="col-md-4">
-        <div class="dashboard-card p-4 h-100">
-          <div class="text-danger fs-2 mb-3"><i class="bi bi-file-earmark-person"></i></div>
-          <h5 class="fw-bold">5. Resume ATS NLP Parser</h5>
-          <p class="text-muted section">Upload your PDF resume to extract key entities, calculate ATS completeness scores, and detect missing keywords for job applications.</p>
-        </div>
-      </div>
-      <!-- 6 -->
-      <div class="col-md-4">
-        <div class="dashboard-card p-4 h-100">
-          <div class="text-primary fs-2 mb-3"><i class="bi bi-mic-fill"></i></div>
-          <h5 class="fw-bold">6. NLP Mock Interview</h5>
-          <p class="text-muted small">Simulate technical, HR, and behavioral interviews with automatic NLP semantic scoring and concept coverage feedback.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- Supported Careers -->
-<section class="py-5 bg-white">
-  <div class="container py-3">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold mb-2">Explore Supported Tech Domains</h2>
-      <p class="text-muted">Targeted career tracks curated with industry benchmarks and required skills.</p>
-    </div>
-    
-    <div class="row g-3">
-      {% for c in careers %}
-      <div class="col-md-4 col-sm-6">
-        <div class="p-3 border rounded-3 h-100 d-flex align-items-center gap-3 bg-light bg-opacity-50">
-          <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle fs-4">
-            <i class="bi {{ c.icon_class|default:'bi-briefcase' }}"></i>
+      <!-- 2 -->
+      <div class="col-md-6 col-lg-4">
+        <div class="dashboard-card p-4 h-100">
+          <div class="bg-success bg-opacity-10 text-success d-inline-flex p-3 rounded-circle fs-3 mb-3">
+            <i class="bi bi-radar"></i>
           </div>
-          <div>
-            <h6 class="fw-bold mb-1">{{ c.title }}</h6>
-            <div class="badge bg-secondary bg-opacity-10 text-secondary mb-1">{{ c.category }}</div>
-            <div class="text-muted small">{{ c.average_salary }} &bull; {{ c.market_demand }} Demand</div>
-          </div>
+          <h5 class="fw-bold mb-2">Skill Gap Analyzer</h5>
+          <p class="text-muted small mb-0">Compare your current technical proficiencies with real industry benchmarks using interactive Radar and Bar charts.</p>
         </div>
       </div>
-      {% endfor %}
+
+      <!-- 3 -->
+      <div class="col-md-6 col-lg-4">
+        <div class="dashboard-card p-4 h-100">
+          <div class="bg-danger bg-opacity-10 text-danger d-inline-flex p-3 rounded-circle fs-3 mb-3">
+            <i class="bi bi-file-earmark-person"></i>
+          </div>
+          <h5 class="fw-bold mb-2">NLP Resume ATS Analyzer</h5>
+          <p class="text-muted small mb-0">Upload PDF or DOCX resumes to receive an instant ATS score, missing skill keywords, strengths, and actionable tips.</p>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="col-md-6 col-lg-4">
+        <div class="dashboard-card p-4 h-100">
+          <div class="bg-warning bg-opacity-10 text-warning d-inline-flex p-3 rounded-circle fs-3 mb-3">
+            <i class="bi bi-signpost-split-fill"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Personalized Learning Roadmap</h5>
+          <p class="text-muted small mb-0">Step-by-step milestones curated for your dream role with interactive progress toggling from Not Started to Completed.</p>
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <div class="col-md-6 col-lg-4">
+        <div class="dashboard-card p-4 h-100">
+          <div class="bg-info bg-opacity-10 text-info d-inline-flex p-3 rounded-circle fs-3 mb-3">
+            <i class="bi bi-chat-dots-fill"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Friendly CareerMate Chatbot</h5>
+          <p class="text-muted small mb-0">Talk to your friendly AI companion like a helpful senior. Instant answers on careers, roadmaps, and skills.</p>
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <div class="col-md-6 col-lg-4">
+        <div class="dashboard-card p-4 h-100">
+          <div class="bg-secondary bg-opacity-10 text-dark d-inline-flex p-3 rounded-circle fs-3 mb-3">
+            <i class="bi bi-translate"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Multilingual & Voice Chat</h5>
+          <p class="text-muted small mb-0">Switch seamlessly between <strong>English, తెలుగు, and हिंदी</strong>, speak using voice input 🎤, and listen to spoken answers 🔊!</p>
+        </div>
+      </div>
     </div>
-    
-    <div class="text-center mt-5">
-      <a href="{% url 'register' %}" class="btn btn-primary px-5 py-3 rounded-pill fw-bold shadow">
-        Create Your Free Account & Get Recommended
-      </a>
-    </div>
-  </div>
-</section>
+  </section>
+</div>
 {% endblock %}
